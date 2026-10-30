@@ -20,6 +20,7 @@ import { Slide7Teramo } from './components/slides/Slide7Teramo';
 import { Slide8Comparison } from './components/slides/Slide8Comparison';
 import { Slide9Winner } from './components/slides/Slide9Winner';
 import { Slide10Thanks } from './components/slides/Slide10Thanks';
+import { Slide11Finale } from './components/slides/Slide11Finale';
 import { PrintDeck } from './components/PrintDeck';
 import { soundManager } from './utils/sound';
 
@@ -52,12 +53,14 @@ export const App: React.FC = () => {
       : false
   );
 
-  // Preload all city WebP images so transitions have zero flash or network lag
+  // Preload all city WebP images and hamster poster so transitions have zero lag
   useEffect(() => {
     PROGRAM_SLIDES.forEach((p) => {
       const img = new Image();
       img.src = p.image;
     });
+    const poster = new Image();
+    poster.src = '/media/hamster-poster.jpg';
   }, []);
 
   // Respect prefers-reduced-motion & monitor FPS on weak projectors/laptops
@@ -66,9 +69,8 @@ export const App: React.FC = () => {
     const onChange = (ev: MediaQueryListEvent) => setReducedMotion(ev.matches);
     mq.addEventListener('change', onChange);
 
-    // Lightweight frame-rate watchdog over 45 frames
     let frames = 0;
-    let start = performance.now();
+    const start = performance.now();
     let rafId = 0;
     const checkFps = (now: number) => {
       frames++;
@@ -93,7 +95,7 @@ export const App: React.FC = () => {
   // Ensure initial URL hash is set and sync with browser hashchange
   useEffect(() => {
     if (isPrintMode) return;
-    if (!window.location.hash || ! /^#slide-\d+$/i.test(window.location.hash)) {
+    if (!window.location.hash || !/^#slide-\d+$/i.test(window.location.hash)) {
       window.history.replaceState(null, '', `#slide-${currentSlide}`);
     }
 
@@ -121,7 +123,7 @@ export const App: React.FC = () => {
         setIsTransitioning(true);
         soundManager.playWhoosh();
         window.history.pushState(null, '', `#slide-${clamped}`);
-        window.setTimeout(() => setIsTransitioning(false), 750);
+        window.setTimeout(() => setIsTransitioning(false), 680);
         return clamped;
       });
     },
@@ -136,7 +138,7 @@ export const App: React.FC = () => {
       setIsTransitioning(true);
       soundManager.playWhoosh();
       window.history.pushState(null, '', `#slide-${next}`);
-      window.setTimeout(() => setIsTransitioning(false), 750);
+      window.setTimeout(() => setIsTransitioning(false), 680);
       return next;
     });
   }, []);
@@ -149,7 +151,7 @@ export const App: React.FC = () => {
       setIsTransitioning(true);
       soundManager.playWhoosh();
       window.history.pushState(null, '', `#slide-${next}`);
-      window.setTimeout(() => setIsTransitioning(false), 750);
+      window.setTimeout(() => setIsTransitioning(false), 680);
       return next;
     });
   }, []);
@@ -179,7 +181,6 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (isPrintMode) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if typing inside an input
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
 
@@ -222,11 +223,19 @@ export const App: React.FC = () => {
           break;
         case 'm':
         case 'M':
+        case 's':
+        case 'S':
           e.preventDefault();
           toggleSound();
           break;
         case 'r':
         case 'R':
+          // On Slide 11, R replays the hamster video (captured in Slide11Finale); elsewhere restarts deck
+          if (currentSlide !== 11 || e.shiftKey) {
+            e.preventDefault();
+            handleRestart();
+          }
+          break;
         case 'Home':
           e.preventDefault();
           handleRestart();
@@ -243,6 +252,7 @@ export const App: React.FC = () => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
+    currentSlide,
     goNext,
     goPrev,
     goToSlide,
@@ -323,29 +333,36 @@ export const App: React.FC = () => {
           />
         );
       case 10:
-      default:
         return (
           <Slide10Thanks
             reducedMotion={reducedMotion}
-            onRestart={handleRestart}
+            onNext={goNext}
             onSelectSlide={goToSlide}
+          />
+        );
+      case 11:
+      default:
+        return (
+          <Slide11Finale
+            reducedMotion={reducedMotion}
+            onRestartDeck={handleRestart}
           />
         );
     }
   };
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden select-none">
-      {/* Subtle Film Grain Overlay */}
+    <div className="relative h-screen w-screen overflow-hidden bg-paper-bg text-paper-ink select-none">
+      {/* Subtle Paper Grain Overlay */}
       <div
         aria-hidden="true"
-        className="film-grain pointer-events-none fixed inset-0 z-30 opacity-[0.035] print:hidden"
+        className="paper-grain pointer-events-none fixed inset-0 z-30 opacity-[0.045] print:hidden"
       />
 
-      {/* Ambient Cursor Glow */}
+      {/* Editorial Reticle Cursor (no neon glow) */}
       <CursorGlow theme={slideMeta.theme} disabled={reducedMotion} />
 
-      {/* Parallax Drifting Clouds */}
+      {/* Editorial Paper Cutout Clouds & Registration Marks */}
       <Clouds
         theme={slideMeta.theme}
         isTransitioning={isTransitioning}
@@ -361,7 +378,7 @@ export const App: React.FC = () => {
         reducedMotion={reducedMotion}
       />
 
-      {/* Slide Stage with Cinematic Rotating Transitions */}
+      {/* Slide Stage with Editorial Transitions */}
       <SlideShell
         slideNumber={currentSlide}
         direction={direction}
@@ -389,7 +406,7 @@ export const App: React.FC = () => {
         onClose={() => setOverviewOpen(false)}
       />
 
-      {/* Top Progress Bar & Bottom Navigation Controls */}
+      {/* Top Flight Progress Bar & Bottom Navigation Controls */}
       <ProgressBar
         currentSlide={currentSlide}
         totalSlides={TOTAL_SLIDES}
@@ -410,4 +427,3 @@ export const App: React.FC = () => {
 };
 
 export default App;
-

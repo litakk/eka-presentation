@@ -1,11 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import {
-  motion,
-  useMotionTemplate,
-  useMotionValue,
-  useSpring,
-  useTransform,
-} from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { Brain, Code, Cpu, Database, Network, Shield } from 'lucide-react';
 import { SlideTheme, TechIconName } from '../../data/slides';
 
@@ -34,8 +28,8 @@ export const TechIcon: React.FC<{ name: TechIconName; className?: string }> = ({
 };
 
 /**
- * SplitText — Adapted from React Bits (DavidHDev/react-bits, MIT License)
- * Enhanced with terminal-style typing reveal & blinking cursor for CS/IT aesthetic.
+ * SplitText — Stop-motion / paper-cut word reveal with slight rotation overshoot
+ * and optional terminal blinking cursor `_`.
  */
 interface SplitTextProps {
   text: string;
@@ -51,7 +45,7 @@ export const SplitText: React.FC<SplitTextProps> = ({
   text,
   className = '',
   delay = 0,
-  stagger = 0.032,
+  stagger = 0.035,
   mode = 'words',
   showCursor = true,
   reducedMotion = false,
@@ -61,9 +55,7 @@ export const SplitText: React.FC<SplitTextProps> = ({
       <span className={className}>
         {text}
         {showCursor && (
-          <span className="ml-1 inline-block font-mono text-eu-yellow animate-pulse">
-            _
-          </span>
+          <span className="ml-1 inline-block font-mono text-tomato">_</span>
         )}
       </span>
     );
@@ -76,12 +68,13 @@ export const SplitText: React.FC<SplitTextProps> = ({
       {parts.map((part, idx) => (
         <motion.span
           key={`${part}-${idx}`}
-          initial={{ opacity: 0, y: 14, filter: 'blur(5px)' }}
-          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          initial={{ opacity: 0, y: 14, rotate: idx % 2 === 0 ? -2.5 : 2.5 }}
+          animate={{ opacity: 1, y: 0, rotate: 0 }}
           transition={{
-            duration: 0.42,
+            type: 'spring',
+            stiffness: 420,
+            damping: 20,
             delay: delay + idx * stagger,
-            ease: [0.22, 1, 0.36, 1],
           }}
           className="inline-block will-change-transform"
           aria-hidden="true"
@@ -95,12 +88,12 @@ export const SplitText: React.FC<SplitTextProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: [0, 1, 0, 1] }}
           transition={{
-            duration: 1.1,
+            duration: 1.0,
             repeat: Infinity,
             delay: delay + parts.length * stagger,
           }}
           aria-hidden="true"
-          className="ml-1 inline-block font-mono font-bold text-eu-yellow select-none"
+          className="ml-1 inline-block font-mono font-bold text-tomato select-none"
         >
           _
         </motion.span>
@@ -110,8 +103,8 @@ export const SplitText: React.FC<SplitTextProps> = ({
 };
 
 /**
- * AnimatedCounter — Adapted from Magic UI NumberTicker (magicuidesign/magicui, MIT License)
- * Uses JetBrains Mono (`font-mono`) for crisp tech numbers.
+ * AnimatedCounter — Airport Split-Flap Departure Board Number Roller
+ * Numbers roll through characters like a mechanical airport departure board.
  */
 interface AnimatedCounterProps {
   value: number;
@@ -121,6 +114,7 @@ interface AnimatedCounterProps {
   duration?: number;
   delay?: number;
   className?: string;
+  splitFlap?: boolean;
   reducedMotion?: boolean;
   onComplete?: () => void;
 }
@@ -130,9 +124,10 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
   prefix = '',
   suffix = '',
   decimals = 0,
-  duration = 1150,
-  delay = 140,
+  duration = 950,
+  delay = 120,
   className = '',
+  splitFlap = false,
   reducedMotion = false,
   onComplete,
 }) => {
@@ -153,8 +148,9 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
         if (startTime === null) startTime = timestamp;
         const elapsed = timestamp - startTime;
         const progress = Math.min(elapsed / duration, 1);
-        const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-        const current = value * eased;
+        // Stepped mechanical split-flap feel (12 discrete steps)
+        const stepped = Math.floor(progress * 14) / 14;
+        const current = progress === 1 ? value : value * stepped;
         setDisplay(current.toFixed(decimals));
 
         if (progress < 1) {
@@ -173,18 +169,38 @@ export const AnimatedCounter: React.FC<AnimatedCounterProps> = ({
     };
   }, [value, decimals, duration, delay, reducedMotion, onComplete]);
 
+  const fullText = `${prefix}${display}${suffix}`;
+
+  if (splitFlap) {
+    return (
+      <span className={`inline-flex items-center gap-0.5 font-mono tabular-nums ${className}`}>
+        {fullText.split('').map((ch, i) => (
+          <span
+            key={i}
+            className="inline-flex items-center justify-center border border-ink bg-ink px-1.5 py-0.5 text-paper shadow-[2px_2px_0px_#C9472B] relative"
+          >
+            <span className="relative z-10">{ch}</span>
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-paper/25"
+            />
+          </span>
+        ))}
+      </span>
+    );
+  }
+
   return (
     <span className={`font-mono tabular-nums ${className}`}>
-      {prefix}
-      {display}
-      {suffix}
+      {fullText}
     </span>
   );
 };
 
 /**
- * TiltSpotlightCard — Adapted from Magic UI MagicCard + React Bits TiltedCard (MIT License)
- * Enhanced with optional code-snippet top header bar (`codeTitle`) for CS/IT aesthetic.
+ * TiltSpotlightCard — Redesigned as an Editorial Paper / Boarding-Pass Card:
+ * Sharp corners, 2px solid #1B1B18 ink border, hard offset shadow, optional masking tape
+ * piece on top, optional code-comment header bar, flat colors only (no glassmorphism or blur).
  */
 interface TiltSpotlightCardProps {
   children: React.ReactNode;
@@ -192,8 +208,8 @@ interface TiltSpotlightCardProps {
   className?: string;
   codeTitle?: string;
   highlight?: boolean;
+  showTape?: boolean;
   reducedMotion?: boolean;
-  tiltMax?: number;
 }
 
 export const TiltSpotlightCard: React.FC<TiltSpotlightCardProps> = ({
@@ -202,176 +218,178 @@ export const TiltSpotlightCard: React.FC<TiltSpotlightCardProps> = ({
   className = '',
   codeTitle,
   highlight = false,
-  reducedMotion = false,
-  tiltMax = 4.5,
+  showTape = false,
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const normX = useMotionValue(0);
-  const normY = useMotionValue(0);
-
-  const springConfig = { stiffness: 260, damping: 24 };
-  const rotateX = useSpring(useTransform(normY, [-0.5, 0.5], [tiltMax, -tiltMax]), springConfig);
-  const rotateY = useSpring(useTransform(normX, [-0.5, 0.5], [-tiltMax, tiltMax]), springConfig);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (reducedMotion || !ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    mouseX.set(x);
-    mouseY.set(y);
-    normX.set(x / rect.width - 0.5);
-    normY.set(y / rect.height - 0.5);
-  };
-
-  const handleMouseLeave = () => {
-    normX.set(0);
-    normY.set(0);
-  };
-
   const isDark = theme === 'dark';
 
   const baseStyles = isDark
     ? highlight
-      ? 'bg-eu-blue/90 border-2 border-eu-yellow shadow-[0_0_40px_rgba(255,204,0,0.28)] text-eu-light'
-      : 'bg-eu-blue/68 border border-eu-sky/25 shadow-[0_16px_40px_rgba(6,26,68,0.48)] text-eu-light'
+      ? 'bg-cream text-ink border-2 border-ink shadow-[7px_7px_0px_#C9472B]'
+      : 'bg-paper text-ink border-2 border-ink shadow-[5px_5px_0px_#E0A526]'
     : highlight
-    ? 'bg-white border-2 border-eu-blue shadow-[0_16px_40px_rgba(11,42,107,0.18)] text-eu-navy'
-    : 'bg-white/90 border border-eu-blue/15 shadow-[0_12px_32px_rgba(11,42,107,0.08)] text-eu-navy';
-
-  const spotlightColor = isDark
-    ? 'rgba(255, 204, 0, 0.14)'
-    : 'rgba(11, 42, 107, 0.08)';
+    ? 'bg-cream text-ink border-2 border-ink shadow-[7px_7px_0px_#C9472B]'
+    : 'bg-cream text-ink border-2 border-ink shadow-ink';
 
   return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={
-        reducedMotion
-          ? undefined
-          : {
-              rotateX,
-              rotateY,
-              transformPerspective: 1000,
-            }
-      }
-      className={`group relative overflow-hidden rounded-2xl backdrop-blur-md transition-colors duration-300 ${baseStyles} ${className}`}
+    <div
+      className={`relative flex flex-col transition-transform duration-150 hover:-translate-y-0.5 ${baseStyles} ${className}`}
     >
-      {/* Glare / Spotlight overlay */}
-      <motion.div
-        className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-        style={{
-          background: useMotionTemplate`radial-gradient(380px circle at ${mouseX}px ${mouseY}px, ${spotlightColor}, transparent 80%)`,
-        }}
-      />
+      {/* Masking tape piece at top-center */}
+      {showTape && (
+        <div
+          aria-hidden="true"
+          className="tape-strip pointer-events-none absolute -top-2.5 left-1/2 z-20 h-5 w-20 -translate-x-1/2 -rotate-2"
+        />
+      )}
 
-      {/* Code-snippet header bar if codeTitle is passed */}
+      {/* Editorial / Code-comment header strip */}
       {codeTitle && (
         <div
-          className={`relative z-10 flex items-center justify-between border-b px-3.5 py-1.5 font-mono text-[11px] ${
-            isDark
-              ? 'border-eu-sky/15 bg-eu-navy/70 text-eu-sky/90'
-              : 'border-eu-blue/10 bg-eu-sky/30 text-eu-blue'
+          className={`flex items-center justify-between border-b-2 border-ink px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-wider ${
+            highlight
+              ? 'bg-tomato text-paper'
+              : 'bg-mustard/35 text-ink'
           }`}
         >
           <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-eu-yellow" />
-            <span className="h-2 w-2 rounded-full bg-eu-sky/60" />
-            <span className="h-2 w-2 rounded-full bg-eu-sky/30" />
+            <span className="inline-block h-2 w-2 border border-ink bg-tomato" />
+            <span className="inline-block h-2 w-2 border border-ink bg-mustard" />
+            <span className="inline-block h-2 w-2 border border-ink bg-olive" />
           </span>
-          <span className="font-semibold tracking-tight">{codeTitle}</span>
+          <span className="truncate">{codeTitle}</span>
         </div>
       )}
 
-      <div className="relative z-10 h-full">{children}</div>
-    </motion.div>
+      <div className="relative z-10 flex-1">{children}</div>
+    </div>
   );
 };
 
 /**
- * MagneticButton — Adapted from React Bits Magnet (MIT License)
+ * PassportStamp — Rubber-stamp badge ("APPROVED", "BEST CHOICE", "FINE", etc.)
+ */
+export const PassportStamp: React.FC<{
+  text: string;
+  variant?: 'tomato' | 'olive' | 'mustard' | 'ink';
+  rotate?: number;
+  className?: string;
+}> = ({ text, variant = 'tomato', rotate = -5, className = '' }) => {
+  const colorMap = {
+    tomato: 'border-tomato text-tomato bg-tomato/10',
+    olive: 'border-olive text-olive bg-olive/10',
+    mustard: 'border-ink text-ink bg-mustard',
+    ink: 'border-ink text-ink bg-paper',
+  };
+
+  return (
+    <div
+      style={{ transform: `rotate(${rotate}deg)` }}
+      className={`inline-flex items-center gap-1.5 border-2 border-double px-3 py-1 font-mono text-xs font-extrabold uppercase tracking-widest select-none ${colorMap[variant]} ${className}`}
+    >
+      <span>★</span>
+      <span>{text}</span>
+      <span>★</span>
+    </div>
+  );
+};
+
+/**
+ * BarcodeStrip — Generates a crisp deterministic SVG barcode from a program/flight code string
+ */
+export const BarcodeStrip: React.FC<{
+  code: string;
+  className?: string;
+  vertical?: boolean;
+}> = ({ code, className = '', vertical = false }) => {
+  const bars: number[] = [];
+  for (let i = 0; i < code.length; i++) {
+    const charCode = code.charCodeAt(i);
+    bars.push((charCode % 3) + 1);
+    bars.push(((charCode >> 2) % 2) + 1);
+  }
+
+  let xCursor = 0;
+  return (
+    <div
+      className={`inline-flex flex-col items-center select-none ${
+        vertical ? 'rotate-90 origin-center' : ''
+      } ${className}`}
+      aria-label={`Boarding pass barcode ${code}`}
+    >
+      <svg
+        viewBox="0 0 180 32"
+        className="h-7 w-full max-w-[180px] fill-ink"
+        preserveAspectRatio="none"
+      >
+        {bars.map((w, idx) => {
+          const barX = xCursor;
+          const gap = (idx % 2) + 1.2;
+          xCursor += w * 2 + gap;
+          if (barX > 175) return null;
+          return (
+            <rect
+              key={idx}
+              x={barX}
+              y="0"
+              width={w * 1.6}
+              height="32"
+            />
+          );
+        })}
+      </svg>
+      <span className="mt-0.5 font-mono text-[9px] font-bold tracking-widest text-ink uppercase">
+        {code}
+      </span>
+    </div>
+  );
+};
+
+/**
+ * HandwrittenNote — Editorial callout with a hand-drawn ink arrow
+ */
+export const HandwrittenNote: React.FC<{
+  text: string;
+  className?: string;
+}> = ({ text, className = '' }) => (
+  <div className={`inline-flex items-center gap-1.5 font-serif italic text-sm font-bold text-tomato ${className}`}>
+    <svg
+      viewBox="0 0 36 20"
+      className="h-4 w-7 shrink-0 stroke-tomato fill-none"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M2 14 C 12 2, 22 4, 32 10" />
+      <path d="M26 5 L 33 10 L 25 15" />
+    </svg>
+    <span>{text}</span>
+  </div>
+);
+
+/**
+ * MagneticButton — Editorial button with hard offset shadow & active press snap
  */
 interface MagneticButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   className?: string;
-  strength?: number;
 }
 
 export const MagneticButton: React.FC<MagneticButtonProps> = ({
   children,
   className = '',
-  strength = 0.25,
   ...props
 }) => {
-  const ref = useRef<HTMLButtonElement>(null);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-
-  const handleMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const dx = (e.clientX - (rect.left + rect.width / 2)) * strength;
-    const dy = (e.clientY - (rect.top + rect.height / 2)) * strength;
-    setPos({ x: dx, y: dy });
-  };
-
-  const handleLeave = () => setPos({ x: 0, y: 0 });
-
   return (
-    <motion.button
-      ref={ref}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      animate={{ x: pos.x, y: pos.y }}
-      transition={{ type: 'spring', stiffness: 260, damping: 18, mass: 0.5 }}
-      className={className}
-      {...(props as Record<string, unknown>)}
+    <button
+      className={`border-2 border-ink shadow-ink transition-transform active:translate-x-0.5 active:translate-y-0.5 ${className}`}
+      {...props}
     >
       {children}
-    </motion.button>
+    </button>
   );
 };
 
 /**
- * CursorGlow — Subtle ambient glow following the pointer
+ * CursorGlow — Disabled in editorial redesign (no glowing blobs per specification)
  */
-export const CursorGlow: React.FC<{ theme: SlideTheme; disabled?: boolean }> = ({
-  theme,
-  disabled = false,
-}) => {
-  const x = useMotionValue(-400);
-  const y = useMotionValue(-400);
-  const smoothX = useSpring(x, { stiffness: 180, damping: 28 });
-  const smoothY = useSpring(y, { stiffness: 180, damping: 28 });
-
-  useEffect(() => {
-    if (disabled) return;
-    const onMove = (e: MouseEvent) => {
-      x.set(e.clientX);
-      y.set(e.clientY);
-    };
-    window.addEventListener('mousemove', onMove, { passive: true });
-    return () => window.removeEventListener('mousemove', onMove);
-  }, [disabled, x, y]);
-
-  if (disabled) return null;
-
-  const isDark = theme === 'dark';
-
-  return (
-    <motion.div
-      aria-hidden="true"
-      className="pointer-events-none fixed left-0 top-0 z-30 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl print:hidden"
-      style={{
-        x: smoothX,
-        y: smoothY,
-        background: isDark
-          ? 'radial-gradient(circle, rgba(255,204,0,0.10) 0%, rgba(191,215,255,0.04) 50%, transparent 75%)'
-          : 'radial-gradient(circle, rgba(11,42,107,0.07) 0%, rgba(255,204,0,0.08) 50%, transparent 75%)',
-      }}
-    />
-  );
-};
+export const CursorGlow: React.FC<{ theme: SlideTheme; disabled?: boolean }> = () => null;

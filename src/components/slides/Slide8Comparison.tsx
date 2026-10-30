@@ -19,117 +19,119 @@ export const Slide8Comparison: React.FC<Slide8ComparisonProps> = ({
       {/* Header */}
       <div className="space-y-1.5">
         <div className="flex flex-wrap items-center gap-2">
-          <motion.div
-            layoutId="slide-header-badge"
-            className="inline-flex w-fit items-center gap-2 rounded-full bg-eu-blue px-4 py-1 text-xs font-mono font-bold uppercase tracking-wider text-eu-yellow"
-          >
+          <span className="inline-flex items-center gap-2 border-2 border-paper bg-tomato px-3.5 py-1 font-mono text-xs font-extrabold uppercase tracking-wider text-paper">
             <Scale className="h-3.5 w-3.5" />
             <span>{SLIDE_8_COMPARISON.badge}</span>
-          </motion.div>
+          </span>
 
-          <span className="hidden md:inline-flex items-center gap-1.5 rounded-md border border-eu-blue/20 bg-eu-sky/40 px-2.5 py-1 font-mono text-[11px] font-semibold text-eu-navy">
-            <Terminal className="h-3.5 w-3.5 text-eu-blue" />
-            <span>{SLIDE_8_COMPARISON.terminalCmd}</span>
+          <span className="hidden md:inline-flex items-center gap-1.5 border border-paper/40 bg-paper px-2.5 py-1 font-mono text-[11px] font-bold text-ink">
+            <Terminal className="h-3.5 w-3.5 text-tomato" />
+            <span>$ {SLIDE_8_COMPARISON.terminalCmd}</span>
           </span>
         </div>
 
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-2">
-          <h1 className="font-display text-3xl sm:text-5xl xl:text-[54px] font-extrabold leading-[1.08] tracking-tight text-eu-navy">
+          <h1 className="misregister-title-dark font-serif text-3xl sm:text-5xl xl:text-[54px] font-black leading-[0.98] tracking-tight text-paper">
             <SplitText
               text={SLIDE_8_COMPARISON.title}
               delay={0.05}
               reducedMotion={reducedMotion}
             />
           </h1>
-          <p className="font-sans text-base sm:text-lg xl:text-[21px] font-semibold text-eu-blue">
+          <p className="font-sans text-base sm:text-lg xl:text-[20px] font-bold text-mustard">
             {SLIDE_8_COMPARISON.subtitle}
           </p>
         </div>
       </div>
 
-      {/* Main Content: Left Comparison Table (8 cols) + Right Animated Bar Chart (4 cols) */}
+      {/* Main Content: Left Departure Board Table (8 cols) + Right Bar Chart (4 cols) */}
       <div className="grid flex-1 grid-cols-1 lg:grid-cols-12 gap-4 items-stretch min-h-0">
-        {/* Left: Animated Comparison Table */}
+        {/* Left: Airport Departure Board Comparison Matrix */}
         <div className="lg:col-span-8 flex flex-col">
           <TiltSpotlightCard
-            theme="light"
-            codeTitle="// 08_it_benchmark_matrix.sql"
+            theme="dark"
+            codeTitle="// 08_departure_board_comparison.sql"
+            showTape
             reducedMotion={reducedMotion}
             className="h-full"
           >
-            <div className="p-4 sm:p-5 flex flex-col justify-between h-full">
-              <div className="overflow-x-auto">
+            <div className="p-4 flex flex-col justify-between h-full">
+              <div className="overflow-x-auto border-2 border-ink bg-cream">
                 <table
                   className="w-full text-left border-collapse"
                   aria-label="Comparison of 5 Italian Erasmus+ Computer Science & IT programs"
                 >
                   <thead>
-                    <tr className="border-b-2 border-eu-blue/20 font-mono text-[11px] font-extrabold uppercase tracking-wider text-eu-blue">
-                      <th className="py-2.5 px-2">University</th>
+                    <tr className="border-b-2 border-ink bg-ink font-mono text-[10px] font-extrabold uppercase tracking-wider text-paper">
+                      <th className="py-2.5 px-2.5">University / Route</th>
                       <th className="py-2.5 px-2">Language</th>
-                      <th className="py-2.5 px-2">IT Course Relevance</th>
+                      <th className="py-2.5 px-2">Courses Relevance to IT</th>
                       <th className="py-2.5 px-2">Cost / mo</th>
                       <th className="py-2.5 px-2">Tech Environment</th>
                       <th className="py-2.5 px-2">Rating</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-eu-blue/10">
+                  <tbody className="divide-y divide-ink/20">
                     {SLIDE_8_COMPARISON.rows.map((row, idx) => {
                       const isSiena = row.isWinner;
                       return (
                         <motion.tr
                           key={row.university}
-                          initial={reducedMotion ? false : { opacity: 0, x: -24 }}
+                          initial={reducedMotion ? false : { opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{
-                            duration: 0.42,
-                            delay: 0.12 + idx * 0.08,
-                            ease: [0.22, 1, 0.36, 1],
+                            duration: 0.35,
+                            delay: 0.1 + idx * 0.07,
                           }}
                           onClick={() => onSelectSlide(idx + 3)}
-                          className={`cursor-pointer transition-colors text-xs xl:text-[14px] ${
+                          className={`cursor-pointer transition-colors text-xs xl:text-[13px] text-ink ${
                             isSiena
-                              ? 'bg-eu-yellow/40 font-bold hover:bg-eu-yellow/55'
-                              : 'hover:bg-eu-sky/30'
+                              ? 'bg-mustard/55 font-bold hover:bg-mustard/75'
+                              : 'hover:bg-paleblue/50'
                           }`}
                         >
-                          <td className="py-3 px-2 font-display font-extrabold text-eu-navy">
-                            <div className="flex items-center gap-1.5">
-                              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-eu-blue font-mono text-[11px] font-bold text-eu-yellow">
+                          <td className="py-2.5 px-2.5 font-serif font-black">
+                            <div className="flex items-center gap-2">
+                              <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center border border-ink bg-tomato font-mono text-[10px] font-bold text-paper">
                                 {idx + 1}
                               </span>
                               <div>
-                                <div>{row.university}</div>
+                                <div>
+                                  {row.university}{' '}
+                                  <span className="font-mono text-[10px] text-ink/70">
+                                    (RIX➔{row.iata.split(' ')[0]})
+                                  </span>
+                                </div>
                                 {row.needsAgreementCheck && (
-                                  <span className="inline-flex items-center gap-1 rounded bg-eu-yellow px-1.5 py-0.2 font-mono text-[9px] font-extrabold text-eu-navy">
+                                  <span className="inline-flex items-center gap-1 border border-ink bg-mustard px-1.5 py-0.2 font-mono text-[9px] font-extrabold text-ink">
                                     <AlertTriangle className="h-2.5 w-2.5" />
-                                    Verify EKA IT slot
+                                    Check EKA IT agreement
                                   </span>
                                 )}
                               </div>
                             </div>
                           </td>
-                          <td className="py-3 px-2 font-mono font-bold">
+                          <td className="py-2.5 px-2 font-mono font-bold">
                             <span
-                              className={`inline-block rounded px-2 py-0.5 text-[11px] ${
+                              className={`inline-block border border-ink px-1.5 py-0.5 text-[10px] font-extrabold uppercase ${
                                 row.language.includes('English')
-                                  ? 'bg-eu-blue text-eu-yellow'
-                                  : 'bg-eu-sky/60 text-eu-navy'
+                                  ? 'bg-olive text-paper'
+                                  : 'bg-paleblue text-ink'
                               }`}
                             >
                               {row.language}
                             </span>
                           </td>
-                          <td className="py-3 px-2 font-sans font-semibold text-eu-navy">
+                          <td className="py-2.5 px-2 font-sans font-bold text-ink">
                             {row.itRelevance}
                           </td>
-                          <td className="py-3 px-2 font-mono font-bold text-eu-blue whitespace-nowrap">
+                          <td className="py-2.5 px-2 font-mono font-extrabold text-tomato whitespace-nowrap">
                             {row.costPerMonth}
                           </td>
-                          <td className="py-3 px-2 font-sans font-medium text-eu-navy">
+                          <td className="py-2.5 px-2 font-sans font-semibold text-ink">
                             {row.techEnvironment}
                           </td>
-                          <td className="py-3 px-2 font-mono font-extrabold text-eu-navy whitespace-nowrap">
+                          <td className="py-2.5 px-2 font-mono font-extrabold text-ink whitespace-nowrap">
                             {row.overallRating}
                           </td>
                         </motion.tr>
@@ -139,9 +141,9 @@ export const Slide8Comparison: React.FC<Slide8ComparisonProps> = ({
                 </table>
               </div>
 
-              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 font-mono text-[11px] text-eu-blue/85">
-                <span>// Click any row to inspect that university’s full IT curriculum</span>
-                <span className="font-bold text-eu-navy">1 CFU = 1 ECTS • 30 ECTS/semester</span>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 font-mono text-[11px] font-bold text-ink/80">
+                <span>// Click any row to open that university’s boarding pass</span>
+                <span>1 CFU = 1 ECTS • 30 ECTS/semester • 0 EUR host tuition</span>
               </div>
             </div>
           </TiltSpotlightCard>
@@ -150,22 +152,22 @@ export const Slide8Comparison: React.FC<Slide8ComparisonProps> = ({
         {/* Right: Animated Bar Chart of Living Costs */}
         <div className="lg:col-span-4 flex flex-col">
           <TiltSpotlightCard
-            theme="light"
-            codeTitle="// 08_cost_midpoint.chart"
+            theme="dark"
+            codeTitle="// 08_living_costs.chart"
             reducedMotion={reducedMotion}
             className="h-full"
           >
-            <div className="p-4 sm:p-5 h-full flex flex-col justify-between">
-              <div className="flex items-center gap-2 mb-1 text-eu-blue">
+            <div className="p-4 h-full flex flex-col justify-between">
+              <div className="flex items-center gap-2 mb-1 text-tomato">
                 <BarChart3 className="h-4 w-4" />
-                <span className="font-mono text-xs font-bold uppercase tracking-wider">
-                  Living Cost Benchmark
+                <span className="font-mono text-xs font-extrabold uppercase tracking-wider">
+                  Cost Comparison
                 </span>
               </div>
               <BarChart
                 rows={SLIDE_8_COMPARISON.rows}
                 title={SLIDE_8_COMPARISON.chartTitle}
-                theme="light"
+                theme="dark"
                 reducedMotion={reducedMotion}
               />
             </div>

@@ -23,24 +23,23 @@ function contrastRatio(hex1, hex2) {
 }
 
 const pairs = [
-  ['Dark Slide Body (#F6F4EC on #061A44)', '#F6F4EC', '#061A44'],
-  ['Dark Slide Card (#F6F4EC on #0B2A6B)', '#F6F4EC', '#0B2A6B'],
-  ['Dark Slide Accent (#FFCC00 on #061A44)', '#FFCC00', '#061A44'],
-  ['Dark Slide Accent on Card (#FFCC00 on #0B2A6B)', '#FFCC00', '#0B2A6B'],
-  ['Dark Slide Subtext (#BFD7FF on #061A44)', '#BFD7FF', '#061A44'],
-  ['Light Slide Body (#061A44 on #F6F4EC)', '#061A44', '#F6F4EC'],
-  ['Light Slide Primary (#0B2A6B on #F6F4EC)', '#0B2A6B', '#F6F4EC'],
-  ['Light Slide Card (#061A44 on #FFFFFF)', '#061A44', '#FFFFFF'],
+  ['Editorial Ink on Warm Paper (#1B1B18 on #F2EADB)', '#1B1B18', '#F2EADB'],
+  ['Editorial Ink on Cream Card (#1B1B18 on #FAF6EE)', '#1B1B18', '#FAF6EE'],
+  ['Editorial Ink on Mustard Badge (#1B1B18 on #E0A526)', '#1B1B18', '#E0A526'],
+  ['Editorial Ink on Pale Blue Accent (#1B1B18 on #CFE0E6)', '#1B1B18', '#CFE0E6'],
+  ['Editorial Cream on Ink Dark Slide (#FAF6EE on #1B1B18)', '#FAF6EE', '#1B1B18'],
+  ['Editorial Mustard on Ink Dark Slide (#E0A526 on #1B1B18)', '#E0A526', '#1B1B18'],
+  ['Editorial Olive on Cream Card (#3F5B3A on #FAF6EE)', '#3F5B3A', '#FAF6EE'],
 ];
 
-console.log('=== 1. WCAG Contrast Check (Target >= 4.5:1) ===');
+console.log('=== 1. Editorial WCAG Contrast Check (Target >= 4.5:1) ===');
 for (const [label, fg, bg] of pairs) {
   const ratio = contrastRatio(fg, bg);
   console.log(`  ${label}: ${ratio.toFixed(2)}:1 ${ratio >= 4.5 ? 'PASS' : 'FAIL'}`);
   if (ratio < 4.5) process.exit(1);
 }
 
-console.log('\n=== 2. Offline Production Bundle Check ===');
+console.log('\n=== 2. Offline Production Bundle & Media Check ===');
 const distDir = path.resolve('dist');
 const requiredFiles = [
   'index.html',
@@ -51,6 +50,9 @@ const requiredFiles = [
   'images/urbino.webp',
   'images/perugia.webp',
   'images/teramo.webp',
+  'media/hamster.mp4',
+  'media/hamster.webm',
+  'media/hamster-poster.jpg',
 ];
 
 for (const rel of requiredFiles) {
@@ -65,7 +67,7 @@ for (const rel of requiredFiles) {
 
 const distAssets = fs.readdirSync(path.join(distDir, 'assets'));
 const woff2Files = distAssets.filter((f) => f.endsWith('.woff2'));
-console.log(`  Bundled self-hosted .woff2 font files (Space Grotesk + Inter + JetBrains Mono): ${woff2Files.length}`);
+console.log(`  Bundled self-hosted .woff2 font files (Fraunces + Archivo + JetBrains Mono): ${woff2Files.length}`);
 if (woff2Files.length < 8) {
   console.error('Expected at least 8 self-hosted .woff2 font files!');
   process.exit(1);
@@ -81,7 +83,7 @@ if (/https?:\/\//i.test(stripXmlns(builtHtml)) || /https?:\/\//i.test(stripXmlns
 }
 console.log('  Zero external URLs in built HTML & CSS (100% offline-ready): PASS');
 
-console.log('\n=== 3. Component Render & CS/IT Content Verification Across All 10 Slides ===');
+console.log('\n=== 3. Component Render & CS/IT + Slide 11 Hamster Finale Verification ===');
 const vite = await createServer({
   server: { middlewareMode: true, hmr: false },
   appType: 'custom',
@@ -92,6 +94,10 @@ try {
   const { SpeakerNotes } = await vite.ssrLoadModule('/src/components/SpeakerNotes.tsx');
   const { Overview } = await vite.ssrLoadModule('/src/components/Overview.tsx');
   const { ALL_SLIDES_METADATA } = await vite.ssrLoadModule('/src/data/slides.ts');
+
+  if (ALL_SLIDES_METADATA.length !== 11) {
+    throw new Error(`Expected 11 slides, found ${ALL_SLIDES_METADATA.length}`);
+  }
 
   const rawMarkup = ReactDOMServer.renderToString(React.createElement(PrintDeck));
   const deckMarkup = rawMarkup.replace(/<!--.*?-->/g, '');
@@ -105,6 +111,7 @@ try {
     '7.0 min',
     'Milano-Bicocca',
     'Check EKA agreement for IT with erasmus@eka.edu.lv',
+    'MXP / LIN',
     'Advanced Machine Learning (F1801Q151)',
     'University of Siena',
     'Artificial Intelligence',
@@ -119,7 +126,14 @@ try {
     '[to be verified]',
     'Comparison of All 5 IT Programs',
     'Which is the best choice?',
-    'Thank you / Any questions?',
+    'Official Sources',
+    'THE END',
+    'FINE',
+    '/media/hamster.mp4',
+    '/media/hamster.webm',
+    '/media/hamster-poster.jpg',
+    'mix-blend-multiply',
+    'Any questions?',
   ];
 
   for (const snippet of expectedSnippets) {
@@ -129,7 +143,7 @@ try {
     console.log(`  Rendered & verified content: "${snippet}"`);
   }
 
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 1; i <= 11; i++) {
     const notesHtml = ReactDOMServer.renderToString(
       React.createElement(SpeakerNotes, {
         isOpen: true,
@@ -142,7 +156,7 @@ try {
       throw new Error(`SpeakerNotes failed for slide ${i}`);
     }
   }
-  console.log('  Verified SpeakerNotes overlay & hash for all 10 slides (#slide-1 .. #slide-10): PASS');
+  console.log('  Verified SpeakerNotes overlay & hash for all 11 slides (#slide-1 .. #slide-11): PASS');
 
   const overviewHtml = ReactDOMServer.renderToString(
     React.createElement(Overview, {
@@ -152,12 +166,12 @@ try {
       onClose: () => {},
     })
   );
-  if (!overviewHtml.includes('Slide Overview') || !overviewHtml.includes('Download PDF Backup')) {
+  if (!overviewHtml.includes('Slide Overview') || !overviewHtml.includes('PDF Backup')) {
     throw new Error('Overview grid failed render check');
   }
-  console.log('  Verified Overview 10-slide grid & PDF backup link: PASS');
+  console.log('  Verified Overview 11-slide grid & PDF backup link: PASS');
 } finally {
   await vite.close();
 }
 
-console.log('\nALL CS / IT QUALITY CHECKS PASSED SUCCESSFULLY!');
+console.log('\nALL 11 SLIDES, EDITORIAL REDESIGN & HAMSTER FINALE CHECKS PASSED!');

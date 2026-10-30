@@ -22,47 +22,51 @@ export const SpeakerNotes: React.FC<SpeakerNotesProps> = ({
     <AnimatePresence>
       {isOpen && (
         <motion.aside
-          initial={{ opacity: 0, y: 24, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 20, scale: 0.96 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
+          initial={{ opacity: 0, y: 20, rotate: -1 }}
+          animate={{ opacity: 1, y: 0, rotate: 0 }}
+          exit={{ opacity: 0, y: 16 }}
+          transition={{ duration: 0.2 }}
           role="dialog"
           aria-label="Presenter Speaker Notes"
-          className="fixed bottom-16 right-6 z-50 w-[min(460px,92vw)] rounded-2xl border-2 border-eu-yellow/70 bg-eu-navy/95 p-5 text-eu-light shadow-[0_20px_50px_rgba(0,0,0,0.65)] backdrop-blur-xl print:hidden"
+          className="fixed bottom-16 right-6 z-50 w-[min(460px,92vw)] border-2 border-ink bg-cream p-5 text-ink shadow-ink-lg print:hidden"
         >
-          <div className="flex items-center justify-between border-b border-eu-sky/20 pb-2.5 mb-3">
+          <div
+            aria-hidden="true"
+            className="tape-strip pointer-events-none absolute -top-2.5 left-1/2 h-5 w-24 -translate-x-1/2 rotate-1"
+          />
+
+          <div className="flex items-center justify-between border-b-2 border-ink pb-2 mb-3">
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-eu-yellow text-eu-navy">
+              <span className="inline-flex h-7 w-7 items-center justify-center border border-ink bg-tomato text-paper">
                 <Mic className="h-4 w-4" />
               </span>
               <div>
-                <h4 className="font-display text-xs font-bold uppercase tracking-wider text-eu-yellow">
-                  Speaker Notes • Slide {slideNumber}/10
+                <h4 className="font-mono text-xs font-extrabold uppercase tracking-wider text-tomato">
+                  Speaker Cue Card • Slide {slideNumber}/11
                 </h4>
-                <p className="text-xs text-eu-sky">{slideMeta.title}</p>
+                <p className="font-serif text-xs font-bold text-ink">{slideMeta.title}</p>
               </div>
             </div>
             <button
               type="button"
               onClick={onClose}
               aria-label="Close speaker notes (shortcut N)"
-              className="rounded-lg p-1.5 text-eu-sky hover:bg-eu-blue hover:text-eu-light focus:outline-none focus:ring-2 focus:ring-eu-yellow"
+              className="border border-ink bg-paper p-1 text-ink hover:bg-tomato hover:text-paper"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
 
-          <p className="font-sans text-base leading-relaxed text-eu-light">
+          <p className="font-sans text-base font-medium leading-relaxed text-ink">
             “{slideMeta.speakerNotes}”
           </p>
 
-          <div className="mt-3 flex items-center justify-between border-t border-eu-sky/15 pt-2 text-[11px] text-eu-sky/80">
+          <div className="mt-3 flex items-center justify-between border-t border-ink/25 pt-2 font-mono text-[11px] text-ink/75">
             <span>Press N to hide • Arrow keys / Space to advance</span>
-            <span className="font-mono text-eu-yellow">{slideMeta.hash}</span>
+            <span className="font-bold text-tomato">{slideMeta.hash}</span>
           </div>
         </motion.aside>
       )}
     </AnimatePresence>
   );
 };
-

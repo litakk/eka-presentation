@@ -5,7 +5,8 @@ export type TransitionType =
   | 'yellow-wipe'
   | 'cloud-zoom'
   | 'card-flip'
-  | 'shared-morph';
+  | 'shared-morph'
+  | 'curtain-wipe';
 
 export type TechIconName = 'cpu' | 'code' | 'database' | 'shield' | 'brain' | 'network';
 
@@ -24,6 +25,20 @@ export interface LivingCostBreakdown {
   total: string;
 }
 
+export interface BoardingPassMeta {
+  fromIata: string;
+  fromCity: string;
+  toIata: string;
+  toAirportName: string;
+  flightCode: string;
+  gate: string;
+  seat: string;
+  cabinClass: string;
+  barcodeText: string;
+  stampText: string;
+  handwrittenNote: string;
+}
+
 export interface ProgramSlideData {
   id: 'milan' | 'siena' | 'urbino' | 'perugia' | 'teramo';
   slideNumber: number;
@@ -34,7 +49,8 @@ export interface ProgramSlideData {
   country: string;
   region: string;
   ekaStatusBadge: string;
-  agreementWarningBadge?: string; // Visible badge for 5th university: "Check EKA agreement for IT with erasmus@eka.edu.lv"
+  agreementWarningBadge?: string;
+  boardingPass: BoardingPassMeta;
   program: string;
   language: string;
   totalEcts: string;
@@ -57,7 +73,7 @@ export interface ProgramSlideData {
   imageAlt: string;
   imageCredit: string;
   officialUrl: string;
-  mapCoords: { x: number; y: number }; // Coordinates on 0..500 x 0..600 Italy SVG viewBox
+  mapCoords: { x: number; y: number };
   theme: SlideTheme;
   transition: TransitionType;
   speakerNotes: string;
@@ -71,12 +87,14 @@ export interface StatCardItem {
   label: string;
   sublabel: string;
   codeTag: string;
+  flapCode: string;
   iconName: TechIconName;
 }
 
 export interface ComparisonRow {
   university: string;
   city: string;
+  iata: string;
   language: string;
   itRelevance: string;
   costPerMonth: string;
@@ -108,10 +126,10 @@ export interface SlideMetadata {
 
 export const PRESENTATION_META = {
   title: 'Erasmus+ in Italy: 5 Study Programs',
-  subtitle: 'Computer Science & IT Track • Partner universities of EKA University of Applied Sciences',
+  subtitle: 'Computer Science & IT Dossier • Partner universities of EKA University of Applied Sciences',
   presenter: 'Computer Science (IT) Student • EKA University of Applied Sciences (Riga, Latvia)',
   institution: 'EKA University of Applied Sciences',
-  departureCity: 'Riga, Latvia',
+  departureCity: 'Riga, Latvia (RIX)',
   country: 'Italy',
 };
 
@@ -119,16 +137,18 @@ export const SLIDE_1_TITLE = {
   slideNumber: 1,
   id: 'slide-1',
   hash: '#slide-1',
-  terminalCmd: 'student@eka-riga:~/erasmus-cs-italy$ ./deploy-flight-plan --target=italy --track=IT',
-  badge: 'EKA UNIVERSITY OF APPLIED SCIENCES • COMPUTER SCIENCE / IT TRACK',
+  terminalCmd: 'student@eka-riga:~/erasmus-cs-italy$ ./issue-boarding-passes --origin=RIX --dest=ITALY',
+  badge: 'EKA UNIVERSITY OF APPLIED SCIENCES • COMPUTER SCIENCE / IT DOSSIER',
   title: 'Erasmus+ in Italy: 5 Study Programs',
   subtitle: 'Partner universities of EKA University of Applied Sciences (Computer Science & ICT)',
-  ctaText: 'Initialize Flight to Italy',
-  routeTag: 'DATA PACKET ROUTE: RIGA (RIX) ➔ MILAN ➔ SIENA ➔ URBINO ➔ PERUGIA ➔ TERAMO',
-  theme: 'dark' as SlideTheme,
+  ctaText: 'Open Boarding Passes',
+  routeTag: 'FLIGHT MANIFEST: RIX (RIGA) ➔ MXP (MILAN) ➔ FLR (SIENA) ➔ RMI (URBINO) ➔ PEG (PERUGIA) ➔ PSR (TERAMO)',
+  stampText: 'DEPARTURE CLEARED • RIX',
+  handwrittenNote: '5 Italian CS/IT routes compared!',
+  theme: 'light' as SlideTheme,
   transition: 'cloud-zoom' as TransitionType,
   speakerNotes:
-    'Hello everyone! As a Computer Science student at EKA, today I will present 5 Erasmus+ IT and Computer Science study programs in Italy, and finish by revealing which one is the best choice for an IT student.',
+    'Hello everyone! Today I am taking you on a flight from Riga to Italy to compare 5 Erasmus+ Computer Science and IT study programs at partner universities of EKA, and at the end we will see which boarding pass is the best choice.',
 };
 
 export const SLIDE_2_DEFINITION = {
@@ -136,18 +156,19 @@ export const SLIDE_2_DEFINITION = {
   id: 'slide-2',
   hash: '#slide-2',
   terminalCmd: 'cat /etc/eka/erasmus-it-eligibility.conf',
-  badge: 'PROTOCOL • EUROPEAN UNION ICT & CS MOBILITY',
+  badge: 'FLIGHT RULES • EUROPEAN UNION ICT & CS MOBILITY',
   title: 'What is Erasmus+?',
   definition: 'EU programme for education, training, youth and sport — Computer Science & IT exchange.',
   stats: [
     {
       value: 12,
       prefix: '2–',
-      suffix: ' months',
+      suffix: ' MO',
       decimals: 0,
-      label: 'of study abroad',
-      sublabel: '1 or 2 semesters in Italian tech & CS faculties',
-      codeTag: 'DURATION_RANGE',
+      label: '2–12 months of study abroad',
+      sublabel: '1 or 2 semesters in Italian CS & ICT departments',
+      codeTag: 'GATE: DURATION',
+      flapCode: '02-12M',
       iconName: 'network',
     },
     {
@@ -155,9 +176,10 @@ export const SLIDE_2_DEFINITION = {
       prefix: '',
       suffix: ' EUR',
       decimals: 0,
-      label: 'tuition at the host university',
-      sublabel: '100% tuition waiver + EU Erasmus+ monthly grant',
-      codeTag: 'HOST_TUITION == 0',
+      label: '0 EUR tuition at the host university',
+      sublabel: 'Full host tuition waiver + EU monthly mobility scholarship',
+      codeTag: 'FARE: 0.00 EUR',
+      flapCode: '000EUR',
       iconName: 'shield',
     },
     {
@@ -165,9 +187,10 @@ export const SLIDE_2_DEFINITION = {
       prefix: '',
       suffix: ' ECTS',
       decimals: 0,
-      label: 'credits per semester (1 CFU = 1 ECTS)',
-      sublabel: 'Italian CFU credits map 1:1 to EKA ECTS',
-      codeTag: '1_CFU === 1_ECTS',
+      label: '30 ECTS credits per semester',
+      sublabel: 'Italian CFU = ECTS (1:1 equivalence toward EKA degree)',
+      codeTag: '1_CFU == 1_ECTS',
+      flapCode: '30ECTS',
       iconName: 'database',
     },
     {
@@ -175,18 +198,19 @@ export const SLIDE_2_DEFINITION = {
       prefix: '',
       suffix: ' min',
       decimals: 1,
-      label: 'minimum average grade at EKA',
-      sublabel: 'GPA eligibility + EHIC & health insurance required',
+      label: '7.0 minimum average grade at EKA',
+      sublabel: 'Academic boarding requirement + EHIC & insurance',
       codeTag: 'MIN_GPA >= 7.0',
+      flapCode: 'GPA7.0',
       iconName: 'cpu',
     },
   ] as StatCardItem[],
   footer: 'Apply in October (spring semester) and March (autumn semester). Italian CFU = ECTS (1:1).',
   source: 'Source: EKA ERASMUS+ page & EKA Partner Institutions 2026_v3.pdf',
-  theme: 'light' as SlideTheme,
+  theme: 'dark' as SlideTheme,
   transition: 'yellow-wipe' as TransitionType,
   speakerNotes:
-    'Erasmus+ lets EKA Computer Science students study abroad for 2 to 12 months with 0 EUR host tuition. In Italy, 1 university credit (CFU) equals 1 ECTS credit, so a full semester is 30 ECTS, and you need a minimum 7.0 GPA at EKA.',
+    'Erasmus+ is the EU programme for education, training, youth and sport. At EKA, Computer Science students need a 7.0 minimum average grade to study abroad for 2 to 12 months with 0 EUR host tuition and 30 ECTS per semester—where 1 Italian CFU equals 1 ECTS.',
 };
 
 export const PROGRAM_SLIDES: ProgramSlideData[] = [
@@ -201,10 +225,23 @@ export const PROGRAM_SLIDES: ProgramSlideData[] = [
     region: 'Lombardy, Northern Italy',
     ekaStatusBadge: '5th Selected Strong CS Partner',
     agreementWarningBadge: 'Check EKA agreement for IT with erasmus@eka.edu.lv',
+    boardingPass: {
+      fromIata: 'RIX',
+      fromCity: 'Riga, Latvia',
+      toIata: 'MXP / LIN',
+      toAirportName: 'Milan Malpensa / Linate',
+      flightCode: 'EKA-IT01',
+      gate: 'U14',
+      seat: '30C',
+      cabinClass: 'LM-18 CS',
+      barcodeText: 'RIX-MXP-UNIMIB-LM18-DISCO',
+      stampText: 'VERIFY IT SLOT',
+      handwrittenNote: 'Top big-city tech hub, but verify EKA IT slot!',
+    },
     program: 'MSc Computer Science (Laurea Magistrale in Informatica, LM-18) — Dept. DISCo',
     language: 'Mixed (English & Italian; key AI/Algorithms MSc courses in English)',
     totalEcts: '120 ECTS / CFU (2 yrs) • 30 ECTS/sem',
-    coursesNote: 'Official DISCo LM-18 Catalogue (1 CFU = 1 ECTS)',
+    coursesNote: 'ls courses/unimib_disco_lm18/ (1 CFU = 1 ECTS)',
     courses: [
       {
         name: 'Advanced Machine Learning (F1801Q151)',
@@ -254,7 +291,7 @@ export const PROGRAM_SLIDES: ProgramSlideData[] = [
     livingCostBreakdown: {
       rent: 'approx. 550–800 EUR',
       food: 'approx. 250–350 EUR',
-      transport: 'approx. 22–39 EUR (ATM student pass)',
+      transport: 'approx. 22–39 EUR (ATM pass)',
       total: 'approx. 900–1,300 EUR/mo',
     },
     livingCostMin: 900,
@@ -269,16 +306,16 @@ export const PROGRAM_SLIDES: ProgramSlideData[] = [
     vibe: 'Big tech & business hub',
     itRelevance: 'Very High (Pure CS, AI, Cloud, Security)',
     techEnvSummary: 'DISCo U14 Labs + Milan Tech Hub',
-    overallRating: '8.8 / 10 (High cost + check IT slot)',
+    overallRating: '8.8 / 10',
     image: '/images/milan.webp',
     imageAlt: 'Modern skyline and tech district architecture of Milan, Italy',
     imageCredit: 'Photo via Unsplash (Free License)',
     officialUrl: 'https://www.unimib.it/ugov/degree/9925',
     mapCoords: { x: 168, y: 122 },
-    theme: 'dark',
+    theme: 'light',
     transition: 'circle-clip',
     speakerNotes:
-      'First is Milano-Bicocca in Milan with its Master in Computer Science at the DISCo department, featuring 6 ECTS courses like Advanced Machine Learning and Large Scale Graph Algorithms in English. Note the badge: you must check the EKA agreement for IT with erasmus@eka.edu.lv, and living costs are approx. 900 to 1,300 euros per month.',
+      'Boarding Pass 1 lands at Milan Malpensa for Milano-Bicocca’s Master in Computer Science at the DISCo department, featuring 6 ECTS courses like Advanced Machine Learning and Large Scale Graph Algorithms in English. Note the stamp: you must check the EKA agreement for IT with erasmus@eka.edu.lv, and living costs are approx. 900 to 1,300 euros per month.',
   },
   {
     id: 'siena',
@@ -290,10 +327,23 @@ export const PROGRAM_SLIDES: ProgramSlideData[] = [
     country: 'Italy',
     region: 'Tuscany, Central Italy',
     ekaStatusBadge: 'Confirmed EKA IT Partner (2026 List v3)',
+    boardingPass: {
+      fromIata: 'RIX',
+      fromCity: 'Riga, Latvia',
+      toIata: 'FLR',
+      toAirportName: 'Florence Airport (70 km to Siena)',
+      flightCode: 'EKA-IT02',
+      gate: 'A01',
+      seat: '01A',
+      cabinClass: 'LM-32 AI/ENG',
+      barcodeText: 'RIX-FLR-UNISI-LM32-AI-ENG',
+      stampText: 'APPROVED • BEST CHOICE',
+      handwrittenNote: '100% English AI & CS + affordable Tuscany town!',
+    },
     program: 'MSc Artificial Intelligence & Automation Engineering / Computer & Automation Eng. (LM-32)',
     language: 'Fully in English (100% English-taught Master tracks)',
     totalEcts: '120 ECTS / CFU (2 yrs) • 30 ECTS/sem',
-    coursesNote: 'Official Unisi DIISM Catalogue (1 CFU = 1 ECTS)',
+    coursesNote: 'ls courses/unisi_diism_ai/ (1 CFU = 1 ECTS)',
     courses: [
       {
         name: 'Artificial Intelligence',
@@ -358,16 +408,16 @@ export const PROGRAM_SLIDES: ProgramSlideData[] = [
     vibe: 'Safe, walkable AI & student town',
     itRelevance: 'Top Tier (100% EN AI, ML, Big Data, HPC)',
     techEnvSummary: 'DIISM AI/Robotics Labs + SAIHub',
-    overallRating: '9.7 / 10 (Best Choice for CS)',
+    overallRating: '9.7 / 10',
     image: '/images/siena.webp',
     imageAlt: 'Historic campus and rooftops of Siena, Tuscany',
     imageCredit: 'Photo via Unsplash (Free License)',
     officialUrl: 'https://artificial-intelligence-automation.unisi.it/',
     mapCoords: { x: 214, y: 245 },
-    theme: 'light',
+    theme: 'dark',
     transition: 'shared-morph',
     speakerNotes:
-      'Second is the University of Siena, a confirmed EKA IT partner offering Master programs in Artificial Intelligence and Automation Engineering and Computer and Automation Engineering fully in English. You study AI, Machine Learning, Big Data, and High Performance Computer Architecture while living for just 600 to 950 euros per month.',
+      'Boarding Pass 2 flies via Florence Airport to the University of Siena, a confirmed EKA IT partner offering Master programs in Artificial Intelligence and Automation Engineering and Computer and Automation Engineering fully in English. You study AI, Machine Learning, Big Data, and High Performance Computer Architecture while living for just 600 to 950 euros per month.',
   },
   {
     id: 'urbino',
@@ -379,10 +429,23 @@ export const PROGRAM_SLIDES: ProgramSlideData[] = [
     country: 'Italy',
     region: 'Marche, Central Italy',
     ekaStatusBadge: 'Confirmed EKA IT Partner (2026 List v3)',
+    boardingPass: {
+      fromIata: 'RIX',
+      fromCity: 'Riga, Latvia',
+      toIata: 'RMI / AOI',
+      toAirportName: 'Rimini / Ancona Airport (55 km)',
+      flightCode: 'EKA-IT03',
+      gate: 'B09',
+      seat: '09B',
+      cabinClass: 'LM-18 CS',
+      barcodeText: 'RIX-RMI-UNIURB-LM18-CS',
+      stampText: 'APPROVED • EKA IT',
+      handwrittenNote: 'Pure CS Master in a Renaissance walled town!',
+    },
     program: 'MSc Informatica e Innovazione Digitale (Computer Science, LM-18, 2 years)',
     language: 'Mixed (Italian + English-taught courses marked in Erasmus factsheet)',
     totalEcts: '120 ECTS / CFU (2 yrs) • 30 ECTS/sem',
-    coursesNote: 'Official UniUrb LM-18 Study Plan (1 CFU = 1 ECTS)',
+    coursesNote: 'ls courses/uniurb_lm18_informatica/ (1 CFU = 1 ECTS)',
     courses: [
       {
         name: 'Machine Learning',
@@ -447,16 +510,16 @@ export const PROGRAM_SLIDES: ProgramSlideData[] = [
     vibe: 'Historic Renaissance CS campus',
     itRelevance: 'High (Cloud, Cybersecurity, IoT, ML)',
     techEnvSummary: 'DiSPeA CS Labs + Blended Streaming',
-    overallRating: '8.5 / 10 (Strong CS, needs B1 IT)',
+    overallRating: '8.5 / 10',
     image: '/images/urbino.webp',
     imageAlt: 'Walled Renaissance university town of Urbino, Italy',
     imageCredit: 'Photo via Unsplash (Free License)',
     officialUrl: 'https://www.uniurb.it/corsi/1757141',
     mapCoords: { x: 256, y: 232 },
-    theme: 'dark',
+    theme: 'light',
     transition: 'card-flip',
     speakerNotes:
-      'Third is Urbino Carlo Bo, a confirmed EKA IT partner offering the 2-year Master Informatica e Innovazione Digitale. It has strong 9 ECTS courses in Cybersecurity, Cloud Computing, Distributed Systems, and Machine Learning, with English courses marked in the factsheet and B1 Italian recommended.',
+      'Boarding Pass 3 takes us via Rimini or Ancona Airport to Urbino Carlo Bo, a confirmed EKA IT partner offering the 2-year Master Informatica e Innovazione Digitale. It has 9 ECTS courses in Cybersecurity, Cloud Computing, Distributed Systems, and Machine Learning, with English courses marked in the factsheet and B1 Italian recommended.',
   },
   {
     id: 'perugia',
@@ -468,10 +531,23 @@ export const PROGRAM_SLIDES: ProgramSlideData[] = [
     country: 'Italy',
     region: 'Umbria, Central Italy',
     ekaStatusBadge: 'Confirmed EKA IT Partner (2026 List v3)',
+    boardingPass: {
+      fromIata: 'RIX',
+      fromCity: 'Riga, Latvia',
+      toIata: 'PEG',
+      toAirportName: 'Perugia San Francesco Airport (12 km)',
+      flightCode: 'EKA-IT04',
+      gate: 'D04',
+      seat: '14C',
+      cabinClass: 'DHI-UX/AI',
+      barcodeText: 'RIX-PEG-UNISTRAPG-UX-AI',
+      stampText: 'APPROVED • EKA IT',
+      handwrittenNote: 'Focuses on UX Design, Info Arch & Digital AI!',
+    },
     program: 'Digital Humanities per l’italiano & Comunicazione Digitale (Applied ICT / UX / AI)',
     language: 'Mostly Italian (international environment + free Italian courses)',
     totalEcts: '30 ECTS / CFU per semester',
-    coursesNote: 'UniStraPg Digital Curriculum (1 CFU = 1 ECTS)',
+    coursesNote: 'ls courses/unistrapg_digital/ (1 CFU = 1 ECTS)',
     courses: [
       {
         name: 'Fondamenti di informatica umanistica (Humanities Computing)',
@@ -529,16 +605,16 @@ export const PROGRAM_SLIDES: ProgramSlideData[] = [
     vibe: 'International UX & Digital Humanities city',
     itRelevance: 'Moderate (UX, Info Architecture, Digital AI Labs)',
     techEnvSummary: 'Digital Media & UX Labs',
-    overallRating: '7.4 / 10 (Applied Digital / UX focus)',
+    overallRating: '7.4 / 10',
     image: '/images/perugia.webp',
     imageAlt: 'Historic university hill city of Perugia in Umbria, Italy',
     imageCredit: 'Photo via Unsplash (Free License)',
     officialUrl: 'https://www.unistrapg.it/',
     mapCoords: { x: 246, y: 268 },
-    theme: 'light',
+    theme: 'dark',
     transition: 'yellow-wipe',
     speakerNotes:
-      'Fourth is the University for Foreigners of Perugia, also on the EKA IT partner list. Rather than hardcore systems engineering, its IT modules focus on Information Architecture and UX Design (6 ECTS), Humanities Computing (9 ECTS), and AI labs, making it ideal if you like UX and digital media.',
+      'Boarding Pass 4 lands at Perugia Airport (PEG) for the University for Foreigners of Perugia, a confirmed EKA IT partner. Its IT modules focus on Information Architecture and UX Design (6 ECTS), Humanities Computing (9 ECTS), and AI labs, making it ideal if you like frontend, UX, and digital media.',
   },
   {
     id: 'teramo',
@@ -550,10 +626,23 @@ export const PROGRAM_SLIDES: ProgramSlideData[] = [
     country: 'Italy',
     region: 'Abruzzo, Central-South Italy',
     ekaStatusBadge: 'Confirmed EKA IT Partner (2026 List v3)',
+    boardingPass: {
+      fromIata: 'RIX',
+      fromCity: 'Riga, Latvia',
+      toIata: 'PSR',
+      toAirportName: 'Pescara Abruzzo Airport (60 km)',
+      flightCode: 'EKA-IT05',
+      gate: 'E06',
+      seat: '06F',
+      cabinClass: 'DATA/SEC',
+      barcodeText: 'RIX-PSR-UNITE-BIGDATA-SEC',
+      stampText: 'APPROVED • LOWEST COST',
+      handwrittenNote: 'Cheapest budget between mountains & sea!',
+    },
     program: 'Erasmus Exchange — Digital Innovation, Big Data & ICT Modules',
     language: 'Mostly Italian ([English exam option to be verified])',
     totalEcts: '30 ECTS / CFU per semester',
-    coursesNote: 'Official UniTE Cineca Catalogue (1 CFU = 1 ECTS)',
+    coursesNote: 'ls courses/unite_cineca_ict/ (1 CFU = 1 ECTS)',
     courses: [
       {
         name: 'Informatica, trend digitali, comunicazione',
@@ -618,16 +707,16 @@ export const PROGRAM_SLIDES: ProgramSlideData[] = [
     vibe: 'Quiet, low-cost mountain & coast town',
     itRelevance: 'Moderate-High (Big Data, Cybersecurity, Applied AI)',
     techEnvSummary: 'Colleparco Digital & Media Labs',
-    overallRating: '7.6 / 10 (Cheapest, mostly Italian)',
+    overallRating: '7.6 / 10',
     image: '/images/teramo.webp',
     imageAlt: 'Gran Sasso mountains and Abruzzo landscape near Teramo, Italy',
     imageCredit: 'Photo via Unsplash (Free License)',
     officialUrl: 'https://unite.coursecatalogue.cineca.it/',
     mapCoords: { x: 292, y: 298 },
-    theme: 'dark',
+    theme: 'light',
     transition: 'cloud-zoom',
     speakerNotes:
-      'Fifth is the University of Teramo between the Gran Sasso mountains and the Adriatic coast. Its Cineca catalogue offers 6 ECTS courses in Big Data Analytics, Cybersecurity, and AI, plus 12 ECTS in Computer Science and Digital Trends, at the lowest monthly living cost of approx. 600 to 850 euros.',
+      'Boarding Pass 5 arrives via Pescara Airport at the University of Teramo, between the Gran Sasso mountains and the Adriatic coast. Its Cineca catalogue offers 6 ECTS courses in Big Data Analytics, Cybersecurity, and AI, plus 12 ECTS in Computer Science and Digital Trends, at the lowest monthly living cost of approx. 600 to 850 euros.',
   },
 ];
 
@@ -635,13 +724,14 @@ export const SLIDE_8_COMPARISON = {
   slideNumber: 8,
   id: 'slide-8',
   hash: '#slide-8',
-  terminalCmd: 'SELECT university, lang, it_relevance, cost_eur, rating FROM eka_it_partners ORDER BY rating DESC;',
-  badge: 'BENCHMARK MATRIX • 5 ITALIAN IT & CS PROGRAMS',
+  terminalCmd: 'SELECT university, iata, lang, it_relevance, cost_eur, rating FROM eka_it_manifest;',
+  badge: 'DEPARTURE BOARD • 5 ITALIAN IT & CS PROGRAMS COMPARED',
   title: 'Comparison of All 5 IT Programs',
-  subtitle: 'Language, IT curriculum depth, monthly living cost, tech environment & overall rating',
+  subtitle: 'Language, IT curriculum relevance, monthly living cost, tech environment & overall rating',
   rows: PROGRAM_SLIDES.map((p) => ({
     university: p.university,
     city: p.city,
+    iata: p.boardingPass.toIata,
     language: p.id === 'siena' ? 'Fully English' : p.id === 'milan' ? 'Mixed (EN/IT)' : 'Mostly Italian',
     itRelevance: p.itRelevance,
     costPerMonth: p.livingCost.replace('approx. ', '~').replace('/month', ''),
@@ -653,23 +743,24 @@ export const SLIDE_8_COMPARISON = {
     needsAgreementCheck: Boolean(p.agreementWarningBadge),
   })) as ComparisonRow[],
   chartTitle: 'Monthly Living Cost Midpoint (EUR/month)',
-  theme: 'light' as SlideTheme,
+  theme: 'dark' as SlideTheme,
   transition: 'circle-clip' as TransitionType,
   speakerNotes:
-    'Comparing all five for an IT student: Siena is the only confirmed EKA partner with a 100% English AI and Computer Engineering Master at 775 euros midpoint. Urbino has a great pure CS Master in Italian, Milan has top English AI courses but costs 1,100 euros and requires checking the EKA IT agreement, while Perugia and Teramo focus on applied digital modules in Italian.',
+    'Here is our airport departure board comparing all five IT programs. Siena is the only confirmed EKA partner with a 100% English AI and Computer Engineering Master at 775 euros midpoint. Urbino has a great pure CS Master in Italian, Milan has top English AI courses but costs 1,100 euros and requires checking the EKA IT agreement, while Perugia and Teramo focus on applied digital modules in Italian.',
 };
 
 export const SLIDE_9_WINNER = {
   slideNumber: 9,
   id: 'slide-9',
   hash: '#slide-9',
-  terminalCmd: './evaluate-best-choice --student-profile="Computer Science / IT" --output=winner',
-  badge: 'FINAL VERDICT • BEST CHOICE FOR AN EKA COMPUTER SCIENCE STUDENT',
+  terminalCmd: './stamp-boarding-pass --winner="University of Siena (FLR)" --track="CS/AI"',
+  badge: 'FINAL BOARDING VERDICT • BEST CHOICE FOR COMPUTER SCIENCE',
   title: 'Which is the best choice?',
   winnerUniversity: 'University of Siena',
-  winnerShort: 'Siena (Confirmed EKA IT Partner)',
+  winnerShort: 'Siena (RIX ➔ FLR)',
   winnerProgram: 'MSc Artificial Intelligence & Automation Eng. / Computer & Automation Eng. (120 ECTS)',
   winnerCost: '600–950 EUR/month (Midpoint: 775 EUR)',
+  stampText: 'BEST CHOICE • APPROVED',
   reasons: [
     {
       title: '1. 100% English Availability & Confirmed EKA IT Agreement',
@@ -688,22 +779,22 @@ export const SLIDE_9_WINNER = {
     },
   ],
   runnerUpNote:
-    'Runner-Up Alternatives: Urbino Carlo Bo is #2 if you speak B1 Italian (pure CS Master with Cybersecurity & Cloud); Milano-Bicocca is #1 for big-city tech careers if erasmus@eka.edu.lv confirms an IT bilateral slot.',
-  theme: 'dark' as SlideTheme,
+    'Runner-Up Stamps: Urbino Carlo Bo is #2 if you speak B1 Italian (pure CS Master with Cybersecurity & Cloud); Milano-Bicocca is #1 for corporate tech if erasmus@eka.edu.lv confirms an IT slot.',
+  theme: 'light' as SlideTheme,
   transition: 'shared-morph' as TransitionType,
   speakerNotes:
-    'So which is the best choice for a Computer Science student? The University of Siena wins clearly: first, it is a confirmed EKA IT partner taught 100% in English; second, its curriculum covers AI, Machine Learning, Big Data, and High Performance Computer Architecture; and third, at 600 to 950 euros per month, it is much more affordable than Milan.',
+    'So which boarding pass wins for a Computer Science student? The University of Siena gets the BEST CHOICE stamp: first, it is a confirmed EKA IT partner taught 100% in English; second, its curriculum covers AI, Machine Learning, Big Data, and High Performance Computer Architecture; and third, at 600 to 950 euros per month, it saves over 300 euros a month compared to Milan.',
 };
 
 export const SLIDE_10_THANKS = {
   slideNumber: 10,
   id: 'slide-10',
   hash: '#slide-10',
-  terminalCmd: 'git push origin main && echo "Grazie mille! Ready for Q&A"',
-  badge: 'CONNECTION CLOSED • PACKET RETURNING TO RIGA (RIX)',
-  title: 'Thank you / Any questions?',
-  subtitle: 'Erasmus+ in Italy: 5 Computer Science & IT Study Programs • EKA University of Applied Sciences',
-  sourcesTitle: 'Verified Official Sources & University Catalogues',
+  terminalCmd: 'cat /etc/eka/official-sources-2026.bib',
+  badge: 'LOGBOOK & SOURCES • PACKET RETURNING TO RIGA (RIX)',
+  title: 'Verified Sources & Logbook',
+  subtitle: 'Official EKA 2026 partner list & Italian university course catalogues',
+  sourcesTitle: 'Official Sources & University Catalogues',
   sourceLinks: [
     {
       label: 'EKA Partner Institutions List 2026 (v3 PDF)',
@@ -746,10 +837,29 @@ export const SLIDE_10_THANKS = {
   ],
   disclaimer:
     'Note: 1 Italian CFU = 1 ECTS. Living costs are approximate; verify current semester syllabi on official university websites.',
-  theme: 'light' as SlideTheme,
+  theme: 'dark' as SlideTheme,
   transition: 'cloud-zoom' as TransitionType,
   speakerNotes:
-    'Thank you for listening! All courses and ECTS values come from the 2026 EKA partner list and the official university catalogues of Siena, Urbino, Perugia, Teramo, and Milano-Bicocca. Do you have any questions?',
+    'Here is our flight logbook with all official sources from EKA and the five Italian universities—and now, let’s land on our final slide!',
+};
+
+export const SLIDE_11_FINALE = {
+  slideNumber: 11,
+  id: 'slide-11',
+  hash: '#slide-11',
+  terminalCmd: 'mpv --blend=multiply /public/media/hamster.mp4 && echo "Any questions?"',
+  badge: 'SLIDE 11 / 11 • GRAND FINALE • FINE DELLA PRESENTAZIONE',
+  title: 'That’s the end of our presentation!',
+  subtitle: 'Grazie mille from Riga to Italy • EKA Computer Science Erasmus+ Dossier',
+  videoMp4: '/media/hamster.mp4',
+  videoWebm: '/media/hamster.webm',
+  posterUrl: '/media/hamster-poster.jpg',
+  endQuestionText: 'Any questions?',
+  stampText: 'FINE • THE END',
+  theme: 'light' as SlideTheme,
+  transition: 'curtain-wipe' as TransitionType,
+  speakerNotes:
+    'And as our fluffy co-pilot says—that’s the end of our presentation! Thank you very much for your attention. Do you have any questions?',
 };
 
 export const ALL_SLIDES_METADATA: SlideMetadata[] = [
@@ -758,7 +868,7 @@ export const ALL_SLIDES_METADATA: SlideMetadata[] = [
     id: 'slide-1',
     hash: '#slide-1',
     title: SLIDE_1_TITLE.title,
-    subtitle: 'CS / IT Track Takeoff',
+    subtitle: 'Boarding Dossier & Route',
     theme: SLIDE_1_TITLE.theme,
     transition: SLIDE_1_TITLE.transition,
     speakerNotes: SLIDE_1_TITLE.speakerNotes,
@@ -778,7 +888,7 @@ export const ALL_SLIDES_METADATA: SlideMetadata[] = [
     id: `slide-${p.slideNumber}`,
     hash: `#slide-${p.slideNumber}`,
     title: `${p.university}, ${p.city}`,
-    subtitle: p.program,
+    subtitle: `RIX ➔ ${p.boardingPass.toIata} • ${p.program}`,
     theme: p.theme,
     transition: p.transition,
     speakerNotes: p.speakerNotes,
@@ -789,7 +899,7 @@ export const ALL_SLIDES_METADATA: SlideMetadata[] = [
     id: 'slide-8',
     hash: '#slide-8',
     title: SLIDE_8_COMPARISON.title,
-    subtitle: 'IT Matrix & Cost Chart',
+    subtitle: 'Departure Board & Cost Chart',
     theme: SLIDE_8_COMPARISON.theme,
     transition: SLIDE_8_COMPARISON.transition,
     speakerNotes: SLIDE_8_COMPARISON.speakerNotes,
@@ -799,7 +909,7 @@ export const ALL_SLIDES_METADATA: SlideMetadata[] = [
     id: 'slide-9',
     hash: '#slide-9',
     title: SLIDE_9_WINNER.title,
-    subtitle: 'Winner: University of Siena (AI & CS)',
+    subtitle: 'Best Choice: Siena (RIX ➔ FLR)',
     theme: SLIDE_9_WINNER.theme,
     transition: SLIDE_9_WINNER.transition,
     speakerNotes: SLIDE_9_WINNER.speakerNotes,
@@ -809,9 +919,19 @@ export const ALL_SLIDES_METADATA: SlideMetadata[] = [
     id: 'slide-10',
     hash: '#slide-10',
     title: SLIDE_10_THANKS.title,
-    subtitle: 'Official Sources & Q&A',
+    subtitle: 'Official Sources & Logbook',
     theme: SLIDE_10_THANKS.theme,
     transition: SLIDE_10_THANKS.transition,
     speakerNotes: SLIDE_10_THANKS.speakerNotes,
+  },
+  {
+    slideNumber: 11,
+    id: 'slide-11',
+    hash: '#slide-11',
+    title: SLIDE_11_FINALE.title,
+    subtitle: 'Hamster Finale & Any Questions?',
+    theme: SLIDE_11_FINALE.theme,
+    transition: SLIDE_11_FINALE.transition,
+    speakerNotes: SLIDE_11_FINALE.speakerNotes,
   },
 ];

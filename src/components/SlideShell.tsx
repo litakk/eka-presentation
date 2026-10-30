@@ -13,7 +13,11 @@ interface SlideShellProps {
   children: React.ReactNode;
 }
 
-const PREMIUM_EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+const PAPER_SPRING = {
+  type: 'spring' as const,
+  stiffness: 320,
+  damping: 26,
+};
 
 function getSlideVariants(
   type: TransitionType,
@@ -23,12 +27,31 @@ function getSlideVariants(
   if (reducedMotion) {
     return {
       initial: { opacity: 0 },
-      animate: { opacity: 1, transition: { duration: 0.2 } },
-      exit: { opacity: 0, transition: { duration: 0.15 } },
+      animate: { opacity: 1, transition: { duration: 0.18 } },
+      exit: { opacity: 0, transition: { duration: 0.14 } },
     };
   }
 
   switch (type) {
+    case 'curtain-wipe':
+      return {
+        initial: {
+          clipPath: 'inset(0 50% 0 50%)',
+          scale: 0.96,
+          opacity: 0.5,
+        },
+        animate: {
+          clipPath: 'inset(0 0% 0 0%)',
+          scale: 1,
+          opacity: 1,
+          transition: { duration: 0.78, ease: [0.22, 1, 0.36, 1] },
+        },
+        exit: {
+          opacity: 0,
+          transition: { duration: 0.4 },
+        },
+      };
+
     case 'circle-clip':
       return {
         initial: {
@@ -36,77 +59,79 @@ function getSlideVariants(
             direction > 0
               ? 'circle(0% at 18% 32%)'
               : 'circle(0% at 82% 32%)',
-          opacity: 0.3,
+          opacity: 0.4,
         },
         animate: {
           clipPath: 'circle(150% at 50% 50%)',
           opacity: 1,
-          transition: { duration: 0.78, ease: PREMIUM_EASE },
+          transition: { duration: 0.75, ease: [0.22, 1, 0.36, 1] },
         },
         exit: {
           opacity: 0,
-          scale: 0.98,
-          transition: { duration: 0.45, ease: PREMIUM_EASE },
+          rotate: direction > 0 ? -1.5 : 1.5,
+          transition: { duration: 0.4 },
         },
       };
 
     case 'yellow-wipe':
       return {
         initial: {
-          x: direction > 0 ? '100%' : '-100%',
-          opacity: 0.85,
+          x: direction > 0 ? '90%' : '-90%',
+          rotate: direction > 0 ? 2 : -2,
+          opacity: 0,
         },
         animate: {
           x: '0%',
+          rotate: 0,
           opacity: 1,
-          transition: { duration: 0.72, ease: PREMIUM_EASE },
+          transition: PAPER_SPRING,
         },
         exit: {
-          x: direction > 0 ? '-35%' : '35%',
+          x: direction > 0 ? '-30%' : '30%',
           opacity: 0,
-          transition: { duration: 0.55, ease: PREMIUM_EASE },
+          transition: { duration: 0.4 },
         },
       };
 
     case 'cloud-zoom':
       return {
         initial: {
-          scale: direction > 0 ? 1.14 : 0.88,
+          scale: direction > 0 ? 1.08 : 0.92,
+          rotate: direction > 0 ? -1.5 : 1.5,
           opacity: 0,
-          filter: 'blur(8px)',
         },
         animate: {
           scale: 1,
+          rotate: 0,
           opacity: 1,
-          filter: 'blur(0px)',
-          transition: { duration: 0.75, ease: PREMIUM_EASE },
+          transition: PAPER_SPRING,
         },
         exit: {
-          scale: direction > 0 ? 0.9 : 1.1,
+          scale: 0.95,
           opacity: 0,
-          filter: 'blur(6px)',
-          transition: { duration: 0.5, ease: PREMIUM_EASE },
+          transition: { duration: 0.38 },
         },
       };
 
     case 'card-flip':
       return {
         initial: {
-          rotateY: direction > 0 ? 28 : -28,
-          scale: 0.92,
+          rotateY: direction > 0 ? 22 : -22,
+          rotateZ: direction > 0 ? 1.5 : -1.5,
+          scale: 0.94,
           opacity: 0,
         },
         animate: {
           rotateY: 0,
+          rotateZ: 0,
           scale: 1,
           opacity: 1,
-          transition: { duration: 0.76, ease: PREMIUM_EASE },
+          transition: PAPER_SPRING,
         },
         exit: {
-          rotateY: direction > 0 ? -22 : 22,
-          scale: 0.94,
+          rotateY: direction > 0 ? -18 : 18,
           opacity: 0,
-          transition: { duration: 0.48, ease: PREMIUM_EASE },
+          transition: { duration: 0.38 },
         },
       };
 
@@ -114,18 +139,20 @@ function getSlideVariants(
     default:
       return {
         initial: {
-          y: direction > 0 ? 36 : -36,
+          y: direction > 0 ? 32 : -32,
+          rotate: direction > 0 ? 1.2 : -1.2,
           opacity: 0,
         },
         animate: {
           y: 0,
+          rotate: 0,
           opacity: 1,
-          transition: { duration: 0.68, ease: PREMIUM_EASE },
+          transition: PAPER_SPRING,
         },
         exit: {
-          y: direction > 0 ? -28 : 28,
+          y: direction > 0 ? -24 : 24,
           opacity: 0,
-          transition: { duration: 0.45, ease: PREMIUM_EASE },
+          transition: { duration: 0.35 },
         },
       };
   }
@@ -169,18 +196,18 @@ export const SlideShell: React.FC<SlideShellProps> = ({
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       style={{ perspective: '1400px' }}
-      className={`relative flex h-screen w-screen flex-col justify-center overflow-hidden pt-3 pb-12 transition-colors duration-700 ${
-        isDark ? 'bg-eu-navy text-eu-light' : 'bg-eu-light text-eu-navy'
+      className={`relative flex h-screen w-screen flex-col justify-center overflow-hidden pt-3 pb-12 transition-colors duration-500 ${
+        isDark ? 'bg-ink text-paper' : 'bg-paper text-ink'
       }`}
     >
-      {/* Left/Right Edge Mouse Click Zones for quick presenter navigation */}
+      {/* Left/Right Edge Mouse Click Zones */}
       <div
         onClick={onPrev}
         aria-hidden="true"
         title="Click left edge for previous slide"
         className="fixed left-0 top-12 bottom-12 z-30 w-5 cursor-w-resize opacity-0 hover:opacity-100 transition-opacity print:hidden"
       >
-        <div className="h-full w-1 bg-eu-yellow/35" />
+        <div className="h-full w-1.5 bg-tomato" />
       </div>
       <div
         onClick={onNext}
@@ -188,24 +215,25 @@ export const SlideShell: React.FC<SlideShellProps> = ({
         title="Click right edge for next slide"
         className="fixed right-0 top-12 bottom-12 z-30 w-5 cursor-e-resize opacity-0 hover:opacity-100 transition-opacity print:hidden"
       >
-        <div className="h-full w-1 ml-auto bg-eu-yellow/35" />
+        <div className="h-full w-1.5 ml-auto bg-tomato" />
       </div>
 
-      {/* Yellow Wipe Leading Edge Accent */}
+      {/* Theatre Curtain / Mustard Wipe Edge */}
       <AnimatePresence mode="sync">
-        {transitionType === 'yellow-wipe' && !reducedMotion && (
-          <motion.div
-            key={`wipe-${slideNumber}`}
-            initial={{ x: direction > 0 ? '100%' : '-100%' }}
-            animate={{ x: direction > 0 ? '-105%' : '105%' }}
-            transition={{ duration: 0.78, ease: PREMIUM_EASE }}
-            aria-hidden="true"
-            className="pointer-events-none fixed inset-y-0 left-0 z-40 w-16 bg-eu-yellow shadow-[0_0_50px_#FFCC00] print:hidden"
-          />
-        )}
+        {(transitionType === 'yellow-wipe' || transitionType === 'curtain-wipe') &&
+          !reducedMotion && (
+            <motion.div
+              key={`wipe-${slideNumber}`}
+              initial={{ x: direction > 0 ? '100%' : '-100%' }}
+              animate={{ x: direction > 0 ? '-105%' : '105%' }}
+              transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
+              aria-hidden="true"
+              className="pointer-events-none fixed inset-y-0 left-0 z-40 w-20 border-x-4 border-ink bg-tomato print:hidden"
+            />
+          )}
       </AnimatePresence>
 
-      {/* 16:9 Stage Container that scales harmoniously to 1920x1080, 1366x768, and mobile */}
+      {/* 16:9 Stage Container */}
       <AnimatePresence mode="wait" custom={direction}>
         <motion.section
           key={slideNumber}
@@ -214,8 +242,8 @@ export const SlideShell: React.FC<SlideShellProps> = ({
           initial="initial"
           animate="animate"
           exit="exit"
-          aria-label={`Slide ${slideNumber} of 10`}
-          className="relative z-10 mx-auto flex h-full w-full max-w-[1760px] flex-col justify-center px-5 sm:px-10 lg:px-16 py-2 sm:py-4 overflow-y-auto md:overflow-hidden"
+          aria-label={`Slide ${slideNumber} of 11`}
+          className="relative z-10 mx-auto flex h-full w-full max-w-[1760px] flex-col justify-center px-5 sm:px-10 lg:px-14 py-2 sm:py-3 overflow-y-auto md:overflow-hidden"
         >
           {children}
         </motion.section>
@@ -223,4 +251,3 @@ export const SlideShell: React.FC<SlideShellProps> = ({
     </main>
   );
 };
-

@@ -7,7 +7,6 @@ import { PROGRAM_SLIDES, SlideTheme } from '../data/slides';
 gsap.registerPlugin(MotionPathPlugin);
 
 interface ItalyMapProps {
-  /** 1..5 corresponding to Milan(1), Siena(2), Urbino(3), Perugia(4), Teramo(5) */
   activeProgramNumber?: number;
   mode?: 'program' | 'hero' | 'return';
   theme: SlideTheme;
@@ -25,13 +24,6 @@ const SICILY_PATH =
 const SARDINIA_PATH =
   'M 104,316 L 138,308 L 148,346 L 142,402 L 114,414 L 96,386 L 98,342 Z';
 
-// Ordered data-packet route segments:
-// 1: Riga (NE border) -> 1. Milan (168,122)
-// 2: 1. Milan (168,122) -> 2. Siena (214,245)
-// 3: 2. Siena (214,245) -> 3. Urbino (256,232)
-// 4: 3. Urbino (256,232) -> 4. Perugia (246,268)
-// 5: 4. Perugia (246,268) -> 5. Teramo (292,298)
-// 6: Return flight 5. Teramo (292,298) -> Riga, Latvia (465,18)
 const SEGMENT_PATHS: Record<number, string> = {
   1: 'M 435,24 Q 290,52 168,122',
   2: 'M 168,122 Q 165,195 214,245',
@@ -44,7 +36,6 @@ const SEGMENT_PATHS: Record<number, string> = {
 export const ItalyMap: React.FC<ItalyMapProps> = ({
   activeProgramNumber = 1,
   mode = 'program',
-  theme,
   reducedMotion = false,
   onSelectCity,
   className = '',
@@ -88,13 +79,13 @@ export const ItalyMap: React.FC<ItalyMapProps> = ({
 
       gsap.set(planeEl, { opacity: 1, scale: 1 });
 
-      const tl = gsap.timeline({ delay: 0.12 });
+      const tl = gsap.timeline({ delay: 0.1 });
 
       tl.to(
         pathEl,
         {
           strokeDashoffset: 0,
-          duration: 1.2,
+          duration: 1.15,
           ease: 'power2.inOut',
         },
         0
@@ -103,7 +94,7 @@ export const ItalyMap: React.FC<ItalyMapProps> = ({
       tl.to(
         planeEl,
         {
-          duration: 1.2,
+          duration: 1.15,
           ease: 'power2.inOut',
           motionPath: {
             path: pathEl,
@@ -121,8 +112,6 @@ export const ItalyMap: React.FC<ItalyMapProps> = ({
     return () => ctx.revert();
   }, [activeSegmentIndex, reducedMotion]);
 
-  const isDark = theme === 'dark';
-
   const completedIndices: number[] = [];
   for (let i = 1; i < activeSegmentIndex; i++) {
     completedIndices.push(i);
@@ -130,235 +119,208 @@ export const ItalyMap: React.FC<ItalyMapProps> = ({
 
   return (
     <div className={`relative select-none ${className}`}>
-      <svg
-        viewBox="0 0 500 600"
-        className="h-full w-full overflow-visible drop-shadow-[0_12px_28px_rgba(6,26,68,0.35)]"
-        role="img"
-        aria-label="Animated IT data-packet map of Italy showing EKA Computer Science partner cities: Milan, Siena, Urbino, Perugia, and Teramo"
-      >
-        <defs>
-          <linearGradient id="italyFillDark" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#0B2A6B" stopOpacity="0.92" />
-            <stop offset="100%" stopColor="#061A44" stopOpacity="0.96" />
-          </linearGradient>
-          <linearGradient id="italyFillLight" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#BFD7FF" stopOpacity="0.72" />
-            <stop offset="100%" stopColor="#0B2A6B" stopOpacity="0.22" />
-          </linearGradient>
-          <filter id="mapPinGlow" x="-40%" y="-40%" width="180%" height="180%">
-            <feGaussianBlur stdDeviation="3.5" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
-        {/* Tech radar / network rings */}
-        <circle
-          cx="250"
-          cy="300"
-          r="210"
-          fill="none"
-          stroke={isDark ? 'rgba(191,215,255,0.14)' : 'rgba(11,42,107,0.14)'}
-          strokeWidth="1"
-          strokeDasharray="3 6"
-        />
-        <circle
-          cx="250"
-          cy="300"
-          r="135"
-          fill="none"
-          stroke={isDark ? 'rgba(255,204,0,0.14)' : 'rgba(11,42,107,0.12)'}
-          strokeWidth="1"
-          strokeDasharray="2 5"
-        />
-
-        {/* Italy Peninsula, Sicily & Sardinia */}
-        <g
-          fill={isDark ? 'url(#italyFillDark)' : 'url(#italyFillLight)'}
-          stroke={isDark ? '#BFD7FF' : '#0B2A6B'}
-          strokeWidth="2.2"
-          strokeLinejoin="round"
+      {/* Vintage Printed Map Sheet */}
+      <div className="border-2 border-ink bg-paper p-2 shadow-ink-sm">
+        <svg
+          viewBox="0 0 500 600"
+          className="h-full w-full overflow-visible"
+          role="img"
+          aria-label="Vintage printed map of Italy showing EKA Computer Science partner cities and airport codes"
         >
-          <path d={ITALY_MAINLAND_PATH} />
-          <path d={SICILY_PATH} />
-          <path d={SARDINIA_PATH} />
-        </g>
+          {/* Vintage cartographic grid lines */}
+          <g stroke="#1B1B18" strokeOpacity="0.14" strokeWidth="1" strokeDasharray="3 5">
+            <line x1="0" y1="150" x2="500" y2="150" />
+            <line x1="0" y1="300" x2="500" y2="300" />
+            <line x1="0" y1="450" x2="500" y2="450" />
+            <line x1="160" y1="0" x2="160" y2="600" />
+            <line x1="340" y1="0" x2="340" y2="600" />
+          </g>
 
-        {/* Riga Node Indicator at top-right */}
-        <g transform="translate(366, 14)">
-          <rect
-            x="0"
-            y="0"
-            width="124"
-            height="26"
-            rx="8"
-            fill={isDark ? '#061A44' : '#0B2A6B'}
-            stroke="#FFCC00"
-            strokeWidth="1.3"
-          />
-          <text
-            x="62"
-            y="17"
-            textAnchor="middle"
-            fill="#FFCC00"
-            fontSize="9.5"
-            fontWeight="700"
-            fontFamily="JetBrains Mono, monospace"
+          {/* Compass Rose in Bottom-Left */}
+          <g transform="translate(56, 520)" stroke="#1B1B18" strokeWidth="1.5">
+            <circle cx="0" cy="0" r="24" fill="#FAF6EE" />
+            <path d="M 0,-22 L 5,0 L 0,22 L -5,0 Z" fill="#C9472B" />
+            <path d="M -22,0 L 0,-5 L 22,0 L 0,5 Z" fill="#1B1B18" />
+            <text
+              x="0"
+              y="-28"
+              textAnchor="middle"
+              fontSize="10"
+              fontWeight="800"
+              fontFamily="Fraunces, serif"
+              fill="#1B1B18"
+              stroke="none"
+            >
+              N
+            </text>
+          </g>
+
+          {/* Hard offset ink drop shadow under Italy landmass */}
+          <g
+            transform="translate(5, 5)"
+            fill="#1B1B18"
+            opacity="0.2"
           >
-            {mode === 'return' ? '↗ ACK: RIGA (RIX)' : '↙ SYN: RIGA (RIX)'}
-          </text>
-        </g>
+            <path d={ITALY_MAINLAND_PATH} />
+            <path d={SICILY_PATH} />
+            <path d={SARDINIA_PATH} />
+          </g>
 
-        {/* Previously transmitted data packet routes */}
-        {completedIndices.map((idx) => (
-          <g key={`done-${idx}`}>
+          {/* Italy Peninsula, Sicily & Sardinia — Flat Mustard/Olive Vintage Print */}
+          <g
+            fill="#E0A526"
+            fillOpacity="0.42"
+            stroke="#1B1B18"
+            strokeWidth="2.5"
+            strokeLinejoin="round"
+          >
+            <path d={ITALY_MAINLAND_PATH} />
+            <path d={SICILY_PATH} />
+            <path d={SARDINIA_PATH} />
+          </g>
+
+          {/* Riga Stamp Tag at top-right */}
+          <g transform="translate(348, 12)">
+            <rect
+              x="0"
+              y="0"
+              width="140"
+              height="26"
+              fill="#FAF6EE"
+              stroke="#1B1B18"
+              strokeWidth="2"
+            />
+            <text
+              x="70"
+              y="17"
+              textAnchor="middle"
+              fill="#1B1B18"
+              fontSize="10"
+              fontWeight="700"
+              fontFamily="JetBrains Mono, monospace"
+            >
+              {mode === 'return' ? '↗ TO RIGA (RIX)' : '↙ FROM RIGA (RIX)'}
+            </text>
+          </g>
+
+          {/* Previously flown segments (dashed ink lines) */}
+          {completedIndices.map((idx) => (
             <path
+              key={`done-${idx}`}
               d={SEGMENT_PATHS[idx]}
               fill="none"
-              stroke={isDark ? 'rgba(255,204,0,0.28)' : 'rgba(11,42,107,0.28)'}
-              strokeWidth="4"
+              stroke="#1B1B18"
+              strokeWidth="2.2"
+              strokeDasharray="6 6"
               strokeLinecap="round"
             />
+          ))}
+
+          {/* Active route line drawn in Tomato Red */}
+          <path
+            ref={activeRouteRef}
+            d={SEGMENT_PATHS[activeSegmentIndex]}
+            fill="none"
+            stroke="#C9472B"
+            strokeWidth="3.2"
+            strokeLinecap="round"
+          />
+
+          {/* City Flag/Sticker Pins */}
+          {PROGRAM_SLIDES.map((city) => {
+            const isCurrent =
+              mode === 'program' && city.programNumber === activeProgramNumber;
+
+            const labelOffsets: Record<string, { dx: number; dy: number }> = {
+              milan: { dx: -88, dy: -26 },
+              siena: { dx: -92, dy: -16 },
+              urbino: { dx: 12, dy: -24 },
+              perugia: { dx: -96, dy: 8 },
+              teramo: { dx: 12, dy: 4 },
+            };
+            const offset = labelOffsets[city.id] || { dx: 12, dy: -10 };
+
+            return (
+              <g
+                key={city.id}
+                transform={`translate(${city.mapCoords.x}, ${city.mapCoords.y})`}
+                className={onSelectCity ? 'cursor-pointer' : ''}
+                onClick={() => onSelectCity?.(city.slideNumber)}
+                role={onSelectCity ? 'button' : undefined}
+                tabIndex={onSelectCity ? 0 : undefined}
+                aria-label={`Jump to ${city.university} in ${city.city}`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onSelectCity?.(city.slideNumber);
+                  }
+                }}
+              >
+                {/* Pin dot & flag pole */}
+                <circle
+                  r={isCurrent ? 6 : 4.5}
+                  fill={isCurrent ? '#C9472B' : '#1B1B18'}
+                  stroke="#FAF6EE"
+                  strokeWidth="1.5"
+                />
+
+                {/* Sticker / Flag Label */}
+                <g transform={`translate(${offset.dx}, ${offset.dy})`}>
+                  <rect
+                    x="0"
+                    y="0"
+                    width="82"
+                    height="20"
+                    fill={isCurrent ? '#C9472B' : '#FAF6EE'}
+                    stroke="#1B1B18"
+                    strokeWidth="1.8"
+                  />
+                  <text
+                    x="41"
+                    y="13.5"
+                    textAnchor="middle"
+                    fill={isCurrent ? '#FAF6EE' : '#1B1B18'}
+                    fontSize="10"
+                    fontWeight="700"
+                    fontFamily="JetBrains Mono, monospace"
+                  >
+                    {city.programNumber}.{city.city}
+                  </text>
+                </g>
+              </g>
+            );
+          })}
+
+          {/* Ink-Drawn Paper Plane on the Map */}
+          <g ref={planeRef}>
             <path
-              d={SEGMENT_PATHS[idx]}
-              fill="none"
-              stroke={isDark ? '#FFCC00' : '#0B2A6B'}
+              d="M 15,0 L -10,-9 L -5,-1 L -10,9 Z"
+              fill="#FAF6EE"
+              stroke="#1B1B18"
               strokeWidth="2"
-              strokeDasharray="3 6"
-              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M 15,0 L -5,-1 L -7,5 Z"
+              fill="#C9472B"
             />
           </g>
-        ))}
-
-        {/* Active glowing data-packet route */}
-        <path
-          ref={activeRouteRef}
-          d={SEGMENT_PATHS[activeSegmentIndex]}
-          fill="none"
-          stroke="#FFCC00"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-          filter="url(#mapPinGlow)"
-        />
-
-        {/* City Nodes (1. Milan -> 2. Siena -> 3. Urbino -> 4. Perugia -> 5. Teramo) */}
-        {PROGRAM_SLIDES.map((city) => {
-          const isCurrent =
-            mode === 'program' && city.programNumber === activeProgramNumber;
-          const isVisited =
-            mode === 'return' ||
-            mode === 'hero' ||
-            city.programNumber < activeProgramNumber;
-
-          const labelOffsets: Record<string, { dx: number; dy: number; anchor: 'start' | 'end' }> = {
-            milan: { dx: -12, dy: -10, anchor: 'end' },
-            siena: { dx: -14, dy: -2, anchor: 'end' },
-            urbino: { dx: 14, dy: -8, anchor: 'start' },
-            perugia: { dx: -14, dy: 16, anchor: 'end' },
-            teramo: { dx: 14, dy: 10, anchor: 'start' },
-          };
-          const offset = labelOffsets[city.id] || { dx: 12, dy: 4, anchor: 'start' };
-
-          return (
-            <g
-              key={city.id}
-              transform={`translate(${city.mapCoords.x}, ${city.mapCoords.y})`}
-              className={onSelectCity ? 'cursor-pointer' : ''}
-              onClick={() => onSelectCity?.(city.slideNumber)}
-              role={onSelectCity ? 'button' : undefined}
-              tabIndex={onSelectCity ? 0 : undefined}
-              aria-label={`Jump to ${city.university} in ${city.city}`}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  onSelectCity?.(city.slideNumber);
-                }
-              }}
-            >
-              {isCurrent && (
-                <>
-                  <circle
-                    r="18"
-                    fill="rgba(255, 204, 0, 0.25)"
-                    className="animate-ping"
-                  />
-                  <circle r="11" fill="rgba(255, 204, 0, 0.38)" />
-                </>
-              )}
-
-              <circle
-                r={isCurrent ? 6.5 : isVisited ? 5.2 : 4.5}
-                fill={
-                  isCurrent
-                    ? '#FFCC00'
-                    : isVisited
-                    ? isDark
-                      ? '#BFD7FF'
-                      : '#0B2A6B'
-                    : isDark
-                    ? 'rgba(191,215,255,0.4)'
-                    : 'rgba(11,42,107,0.35)'
-                }
-                stroke={isCurrent ? '#061A44' : '#F6F4EC'}
-                strokeWidth="2"
-              />
-
-              <text
-                x={offset.dx}
-                y={offset.dy}
-                textAnchor={offset.anchor}
-                fill={
-                  isCurrent
-                    ? '#FFCC00'
-                    : isDark
-                    ? '#F6F4EC'
-                    : '#061A44'
-                }
-                fontSize={isCurrent ? '12.5' : '11'}
-                fontWeight="700"
-                fontFamily="JetBrains Mono, monospace"
-                className="select-none"
-              >
-                0{city.programNumber}:{city.city}
-              </text>
-            </g>
-          );
-        })}
-
-        {/* Animated Plane + Data Packet Pulse on the Italy Map */}
-        <g ref={planeRef} filter="url(#mapPinGlow)">
-          <circle cx="-11" cy="0" r="3" fill="#FFCC00" />
-          <path
-            d="M 14,0 L -10,-9 L -5,-1 L -10,9 Z"
-            fill="#FFCC00"
-            stroke="#061A44"
-            strokeWidth="1.5"
-            strokeLinejoin="round"
-          />
-        </g>
-      </svg>
+        </svg>
+      </div>
 
       {mode === 'program' && (
         <motion.div
           key={activeProgramNumber}
-          initial={{ opacity: 0, scale: 0.88, y: 6 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ type: 'spring', stiffness: 320, damping: 22, delay: 0.2 }}
-          className={`mt-1 flex items-center justify-between rounded-xl px-2.5 py-1.5 font-mono text-[11px] font-bold border ${
-            isDark
-              ? 'bg-eu-navy/90 border-eu-yellow/50 text-eu-light'
-              : 'bg-eu-blue text-eu-light border-eu-blue'
-          }`}
+          initial={{ opacity: 0, rotate: -2, scale: 0.92 }}
+          animate={{ opacity: 1, rotate: 0, scale: 1 }}
+          transition={{ type: 'spring', stiffness: 360, damping: 20 }}
+          className="mt-1.5 flex items-center justify-between border-2 border-ink bg-mustard px-2.5 py-1 font-mono text-[10px] font-extrabold text-ink shadow-ink-sm"
         >
-          <span className="flex items-center gap-1.5 text-eu-yellow">
-            <span className="inline-block h-2 w-2 rounded-full bg-eu-yellow animate-pulse" />
-            NODE 0{activeProgramNumber}/05:{' '}
-            {PROGRAM_SLIDES[activeProgramNumber - 1]?.city.toUpperCase()}
+          <span>
+            RIX ➔ {PROGRAM_SLIDES[activeProgramNumber - 1]?.boardingPass.toIata}
           </span>
-          <span className="opacity-85 truncate max-w-[110px]">
-            {PROGRAM_SLIDES[activeProgramNumber - 1]?.country}
+          <span>
+            STOP 0{activeProgramNumber}/05
           </span>
         </motion.div>
       )}

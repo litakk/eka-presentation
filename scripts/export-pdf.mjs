@@ -2,9 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 /**
- * Generates a 10-page 16:9 (1920x1080) static PDF backup of all 10 slides
+ * Generates an 11-page 16:9 (1920x1080) static PDF backup of all 11 slides
  * ("Erasmus+ in Italy: 5 Study Programs — Computer Science / IT Track")
- * with zero external runtime dependencies.
+ * styled in the warm editorial boarding-pass palette with zero external dependencies.
  */
 
 const PAGE_W = 1920;
@@ -19,12 +19,13 @@ const rgb = (hex) => {
 };
 
 const PALETTE = {
-  blue: rgb('#0B2A6B'),
-  yellow: rgb('#FFCC00'),
-  light: rgb('#F6F4EC'),
-  navy: rgb('#061A44'),
-  sky: rgb('#BFD7FF'),
-  white: '1 1 1',
+  paper: rgb('#F2EADB'),
+  cream: rgb('#FAF6EE'),
+  ink: rgb('#1B1B18'),
+  red: rgb('#C9472B'),
+  olive: rgb('#3F5B3A'),
+  mustard: rgb('#E0A526'),
+  sky: rgb('#CFE0E6'),
 };
 
 function escPdf(str) {
@@ -58,19 +59,19 @@ function textLine(x, yTop, size, text, color, bold = false) {
 const SLIDES = [
   {
     num: 1,
-    theme: 'dark',
+    theme: 'light',
     badge: 'EKA UNIVERSITY OF APPLIED SCIENCES * COMPUTER SCIENCE / IT TRACK',
     title: 'Erasmus+ in Italy: 5 Study Programs',
-    subtitle: 'Partner universities of EKA University of Applied Sciences (Computer Science & ICT)',
+    subtitle: 'Partner universities of EKA University of Applied Sciences (Riga RIX -> Italy)',
     cards: [
       {
-        heading: 'Data Packet Route across Italy (CS / IT Programs)',
+        heading: 'Boarding Route Across Italy (5 Computer Science & IT Programs)',
         lines: [
-          '1. Milano-Bicocca (Milan) - MSc Computer Science (LM-18) [Check EKA agreement for IT with erasmus@eka.edu.lv]',
-          '2. University of Siena (Siena) - MSc AI & Automation Eng. / Computer & Automation Eng. (100% English)',
-          '3. Urbino Carlo Bo (Urbino) - MSc Informatica e Innovazione Digitale (LM-18 CS)',
-          '4. University for Foreigners of Perugia (Perugia) - Digital Humanities, UX Design & Applied AI',
-          '5. University of Teramo (Teramo) - Big Data Analytics, Cybersecurity & ICT Modules',
+          '1. Milano-Bicocca (Milan, MXP/LIN) - MSc Computer Science (LM-18) [Check EKA agreement for IT with erasmus@eka.edu.lv]',
+          '2. University of Siena (Siena, FLR) - MSc AI & Automation Eng. / Computer & Automation Eng. (100% English)',
+          '3. Urbino Carlo Bo (Urbino, RMI/AOI) - MSc Informatica e Innovazione Digitale (LM-18 CS)',
+          '4. University for Foreigners of Perugia (Perugia, PEG) - Digital Humanities, UX Design & Applied AI',
+          '5. University of Teramo (Teramo, PSR) - Big Data Analytics, Cybersecurity & ICT Modules',
         ],
       },
     ],
@@ -79,7 +80,7 @@ const SLIDES = [
   {
     num: 2,
     theme: 'light',
-    badge: 'PROTOCOL * EUROPEAN UNION ICT & CS MOBILITY',
+    badge: 'PASSENGER MANIFEST * EUROPEAN UNION ICT & CS MOBILITY',
     title: 'What is Erasmus+?',
     subtitle: 'EU programme for education, training, youth and sport — Computer Science & IT exchange.',
     cards: [
@@ -93,7 +94,7 @@ const SLIDES = [
         ],
       },
       {
-        heading: 'Application Deadlines & Source',
+        heading: 'Application Deadlines & Official Sources',
         lines: [
           'Apply in October (spring semester) and March (autumn semester).',
           'Source: EKA ERASMUS+ page & EKA Partner Institutions 2026_v3.pdf',
@@ -104,8 +105,8 @@ const SLIDES = [
   },
   {
     num: 3,
-    theme: 'dark',
-    badge: 'IT_NODE 01 / 05 * CHECK EKA AGREEMENT FOR IT WITH erasmus@eka.edu.lv',
+    theme: 'light',
+    badge: 'BOARDING PASS 01 / 05 * RIX -> MXP/LIN * CHECK EKA AGREEMENT FOR IT',
     title: '01. Milano-Bicocca — Milan, Italy',
     subtitle: 'MSc Computer Science (Laurea Magistrale in Informatica, LM-18) | Mixed (EN/IT) | 120 ECTS',
     cards: [
@@ -122,18 +123,18 @@ const SLIDES = [
       {
         heading: 'Campus, Living Cost & Additional Info',
         lines: [
-          'BADGE: Check EKA agreement for IT with erasmus@eka.edu.lv',
+          'STAMP: Check EKA agreement for IT with erasmus@eka.edu.lv',
           'Campus: DISCo Building U14 AI/robotics labs, libraries & coworking',
           'Living cost: approx. 900-1,300 EUR/mo (Rent ~550-800, Food ~250-350, Transport ~22-39 EUR) | EHIC + insurance',
         ],
       },
     ],
-    footer: 'Node 1/5: Milan (Check EKA agreement for IT with erasmus@eka.edu.lv)',
+    footer: 'Gate G01 * Seat 14A * Milan (Check EKA agreement for IT with erasmus@eka.edu.lv)',
   },
   {
     num: 4,
     theme: 'light',
-    badge: 'IT_NODE 02 / 05 * CONFIRMED EKA IT PARTNER (SIENA, TUSCANY)',
+    badge: 'BOARDING PASS 02 / 05 * RIX -> FLR * CONFIRMED EKA IT PARTNER (SIENA)',
     title: '02. University of Siena — Siena, Italy',
     subtitle: 'MSc Artificial Intelligence & Automation Eng. / Computer & Automation Eng. (LM-32) | Fully in English',
     cards: [
@@ -156,12 +157,12 @@ const SLIDES = [
         ],
       },
     ],
-    footer: 'Node 2/5: Siena (Confirmed EKA IT Partner — 100% English AI & CS Engineering)',
+    footer: 'Gate G02 * Seat 01A * Siena (Confirmed EKA IT Partner — 100% English AI & CS Engineering)',
   },
   {
     num: 5,
-    theme: 'dark',
-    badge: 'IT_NODE 03 / 05 * CONFIRMED EKA IT PARTNER (URBINO, MARCHE)',
+    theme: 'light',
+    badge: 'BOARDING PASS 03 / 05 * RIX -> RMI/AOI * CONFIRMED EKA IT PARTNER (URBINO)',
     title: '03. Urbino Carlo Bo — Urbino, Italy',
     subtitle: 'MSc Informatica e Innovazione Digitale (Computer Science, LM-18, 2 yrs) | Mixed (IT + EN marked)',
     cards: [
@@ -183,12 +184,12 @@ const SLIDES = [
         ],
       },
     ],
-    footer: 'Node 3/5: Urbino (Confirmed EKA IT Partner — Pure CS Master LM-18)',
+    footer: 'Gate G03 * Seat 08C * Urbino (Confirmed EKA IT Partner — Pure CS Master LM-18)',
   },
   {
     num: 6,
     theme: 'light',
-    badge: 'IT_NODE 04 / 05 * CONFIRMED EKA IT PARTNER (PERUGIA, UMBRIA)',
+    badge: 'BOARDING PASS 04 / 05 * RIX -> PEG * CONFIRMED EKA IT PARTNER (PERUGIA)',
     title: '04. University for Foreigners of Perugia — Perugia, Italy',
     subtitle: 'Digital Humanities per l italiano & Comunicazione Digitale (Applied ICT / UX / AI)',
     cards: [
@@ -211,12 +212,12 @@ const SLIDES = [
         ],
       },
     ],
-    footer: 'Node 4/5: Perugia (Confirmed EKA IT Partner — UX Design & Digital Humanities)',
+    footer: 'Gate G04 * Seat 19B * Perugia (Confirmed EKA IT Partner — UX Design & Digital Humanities)',
   },
   {
     num: 7,
-    theme: 'dark',
-    badge: 'IT_NODE 05 / 05 * CONFIRMED EKA IT PARTNER (TERAMO, ABRUZZO)',
+    theme: 'light',
+    badge: 'BOARDING PASS 05 / 05 * RIX -> PSR * CONFIRMED EKA IT PARTNER (TERAMO)',
     title: '05. University of Teramo — Teramo, Italy',
     subtitle: 'Erasmus Exchange — Digital Innovation, Big Data & ICT Modules | Mostly Italian',
     cards: [
@@ -239,12 +240,12 @@ const SLIDES = [
         ],
       },
     ],
-    footer: 'Node 5/5: Teramo (Confirmed EKA IT Partner — Cheapest Living Cost)',
+    footer: 'Gate G05 * Seat 22F * Teramo (Confirmed EKA IT Partner — Cheapest Living Cost)',
   },
   {
     num: 8,
     theme: 'light',
-    badge: 'BENCHMARK MATRIX * 5 ITALIAN IT & CS PROGRAMS',
+    badge: 'FLIGHT COMPARISON LEDGER * 5 ITALIAN IT & CS PROGRAMS',
     title: 'Comparison of All 5 IT Programs',
     subtitle: 'Language | IT Relevance | Living Cost / Month | Tech Environment | Overall Rating',
     cards: [
@@ -252,7 +253,7 @@ const SLIDES = [
         heading: 'Comparison Matrix & Monthly Living Cost Midpoints',
         lines: [
           '1. Milano-Bicocca | Mixed (EN/IT)  | Very High (Pure CS/AI) | ~900-1,300 EUR (1,100) | DISCo Labs   | 8.8/10 [Check EKA IT]',
-          '2. Siena          | Fully English  | Top Tier (AI/ML/HPC)   | 600-950 EUR    (775)   | DIISM+SAIHub | 9.7/10 [WINNER]',
+          '2. Siena          | Fully English  | Top Tier (AI/ML/HPC)   | 600-950 EUR    (775)   | DIISM+SAIHub | 9.7/10 [BEST CHOICE]',
           '3. Urbino         | Mostly Italian | High (CS/Cloud/Sec)    | ~650-900 EUR   (775)   | DiSPeA Labs  | 8.5/10',
           '4. Perugia        | Mostly Italian | Moderate (UX/InfoArch) | ~650-900 EUR   (775)   | UX/Media Lab | 7.4/10',
           '5. Teramo         | Mostly Italian | Mod-High (Data/Sec)    | ~600-850 EUR   (725)   | Media Labs   | 7.6/10',
@@ -264,7 +265,7 @@ const SLIDES = [
   {
     num: 9,
     theme: 'dark',
-    badge: 'FINAL VERDICT * BEST CHOICE FOR A COMPUTER SCIENCE STUDENT',
+    badge: 'FINAL VERDICT * BEST CHOICE STAMP FOR A COMPUTER SCIENCE STUDENT',
     title: 'Which is the best choice? Winner: University of Siena',
     subtitle: 'MSc Artificial Intelligence & Automation Eng. / Computer & Automation Eng. (120 ECTS, 100% English)',
     cards: [
@@ -283,13 +284,13 @@ const SLIDES = [
         ],
       },
     ],
-    footer: 'Winner for Computer Science: University of Siena (Tuscany, Italy)',
+    footer: 'STAMP: BEST CHOICE — University of Siena (Tuscany, Italy)',
   },
   {
     num: 10,
     theme: 'light',
-    badge: 'CONNECTION CLOSED * PACKET RETURNING TO RIGA (RIX)',
-    title: 'Thank you / Any questions?',
+    badge: 'OFFICIAL SOURCES & BIBLIOGRAPHY * PRE-FINALE',
+    title: 'Thank you / Official Sources',
     subtitle: 'Erasmus+ in Italy: 5 Computer Science & IT Study Programs — EKA University of Applied Sciences',
     cards: [
       {
@@ -303,24 +304,43 @@ const SLIDES = [
         ],
       },
     ],
-    footer: 'Note: 1 CFU = 1 ECTS. Living costs are approximate; verify current semester syllabi on official university websites.',
+    footer: 'Note: 1 CFU = 1 ECTS. Next slide (Slide 11): "THE END" Hamster Video Finale.',
+  },
+  {
+    num: 11,
+    theme: 'light',
+    badge: 'SLIDE 11 // ARRIVAL GATE * CINEMA ITALIA: FINE',
+    title: 'The End — Any questions?',
+    subtitle: 'Fluffy Hamster Finale (public/media/hamster.mp4) — "That\'s the end of our presentation"',
+    cards: [
+      {
+        heading: 'Finale Video & Interactive Controls',
+        lines: [
+          '* Video: public/media/hamster.mp4 & public/media/hamster.webm (poster: public/media/hamster-poster.jpg)',
+          '* Paper Cutout Blend: mix-blend-mode: multiply over warm archival paper (#F2EADB / #FAF6EE)',
+          '* Keyboard Shortcuts: Press [S] to toggle sound, [R] to replay hamster video, [Home] to restart deck',
+          '* Floor open for class & teacher Q&A: Any questions?_',
+        ],
+      },
+    ],
+    footer: 'FINE (The End) * EKA University of Applied Sciences * Riga (RIX) -> Italy (IT)',
   },
 ];
 
 function renderSlideContent(slide) {
   const isDark = slide.theme === 'dark';
-  const bg = isDark ? PALETTE.navy : PALETTE.light;
-  const cardBg = isDark ? PALETTE.blue : PALETTE.white;
-  const titleColor = isDark ? PALETTE.light : PALETTE.navy;
-  const subColor = isDark ? PALETTE.sky : PALETTE.blue;
-  const accent = PALETTE.yellow;
+  const bg = isDark ? PALETTE.ink : PALETTE.paper;
+  const cardBg = isDark ? PALETTE.ink : PALETTE.cream;
+  const titleColor = isDark ? PALETTE.cream : PALETTE.ink;
+  const subColor = isDark ? PALETTE.mustard : PALETTE.red;
+  const accent = isDark ? PALETTE.mustard : PALETTE.red;
 
   let cmds = '';
   cmds += rectFill(0, 0, PAGE_W, PAGE_H, bg);
-  cmds += rectFill(0, 0, Math.round((slide.num / 10) * PAGE_W), 10, accent);
+  cmds += rectFill(0, 0, Math.round((slide.num / SLIDES.length) * PAGE_W), 10, accent);
 
-  cmds += rectFill(100, 65, 860, 38, PALETTE.blue);
-  cmds += textLine(120, 90, 14, slide.badge, accent, true);
+  cmds += rectFill(100, 65, 920, 38, isDark ? PALETTE.red : PALETTE.ink);
+  cmds += textLine(120, 90, 14, slide.badge, PALETTE.cream, true);
 
   cmds += textLine(100, 165, 50, slide.title, titleColor, true);
   cmds += textLine(100, 212, 22, slide.subtitle, subColor, false);
@@ -329,8 +349,8 @@ function renderSlideContent(slide) {
   for (const card of slide.cards) {
     const cardH = 75 + card.lines.length * 40;
     cmds += rectFill(100, yCursor, PAGE_W - 200, cardH, cardBg);
-    cmds += rectStroke(100, yCursor, PAGE_W - 200, cardH, isDark ? accent : PALETTE.blue, 2);
-    cmds += textLine(135, yCursor + 44, 25, card.heading, isDark ? accent : PALETTE.blue, true);
+    cmds += rectStroke(100, yCursor, PAGE_W - 200, cardH, isDark ? PALETTE.mustard : PALETTE.ink, 2);
+    cmds += textLine(135, yCursor + 44, 25, card.heading, accent, true);
 
     card.lines.forEach((line, idx) => {
       cmds += textLine(
@@ -338,7 +358,7 @@ function renderSlideContent(slide) {
         yCursor + 88 + idx * 38,
         21,
         line,
-        isDark ? PALETTE.light : PALETTE.navy,
+        isDark ? PALETTE.cream : PALETTE.ink,
         false
       );
     });
@@ -346,14 +366,14 @@ function renderSlideContent(slide) {
     yCursor += cardH + 24;
   }
 
-  cmds += rectFill(0, PAGE_H - 68, PAGE_W, 68, PALETTE.blue);
-  cmds += textLine(100, PAGE_H - 26, 17, slide.footer, PALETTE.light, false);
+  cmds += rectFill(0, PAGE_H - 68, PAGE_W, 68, PALETTE.ink);
+  cmds += textLine(100, PAGE_H - 26, 17, slide.footer, PALETTE.cream, false);
   cmds += textLine(
     PAGE_W - 280,
     PAGE_H - 26,
     17,
-    `Slide ${String(slide.num).padStart(2, '0')} / 10`,
-    accent,
+    `Slide ${String(slide.num).padStart(2, '0')} / ${SLIDES.length}`,
+    PALETTE.mustard,
     true
   );
 
@@ -409,4 +429,4 @@ const publicPdf = path.resolve('public/Erasmus-Italy-5-Study-Programs-Slides.pdf
 
 fs.writeFileSync(rootPdf, pdfBuf);
 fs.writeFileSync(publicPdf, pdfBuf);
-console.log(`Generated 10-slide 16:9 CS/IT PDF backup: ${rootPdf} (${pdfBuf.length} bytes)`);
+console.log(`Generated 11-slide 16:9 Editorial CS/IT PDF backup: ${rootPdf} (${pdfBuf.length} bytes)`);
