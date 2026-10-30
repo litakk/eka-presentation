@@ -3,322 +3,168 @@ import { motion } from 'framer-motion';
 import {
   AlertTriangle,
   CheckCircle2,
-  Cpu,
+  BookOpen,
+  Building2,
   HeartPulse,
-  PlaneTakeoff,
+  Info,
 } from 'lucide-react';
 import { ProgramSlideData } from '../../data/slides';
-import { CourseTable } from '../CourseTable';
-import { ItalyMap } from '../ItalyMap';
-import {
-  AnimatedCounter,
-  BarcodeStrip,
-  HandwrittenNote,
-  PassportStamp,
-  SplitText,
-  TiltSpotlightCard,
-} from '../ui/AnimatedPrimitives';
+import { BarcodeStrip, PassportStamp } from '../ui/AnimatedPrimitives';
 
 interface ProgramSlideViewProps {
   data: ProgramSlideData;
   reducedMotion?: boolean;
-  onSelectSlide: (slide: number) => void;
 }
 
 export const ProgramSlideView: React.FC<ProgramSlideViewProps> = ({
   data,
   reducedMotion = false,
-  onSelectSlide,
 }) => {
-  const isDark = data.theme === 'dark';
-  const bp = data.boardingPass;
-
   return (
-    <div className="flex h-full w-full flex-col justify-between gap-2.5 py-0.5">
-      {/* BOARDING PASS HEADER TICKET (RIX -> Nearest Airport Code, Gate/Seat/Class fields, Barcode & Stamp) */}
-      <header className="relative border-2 border-ink bg-cream text-ink shadow-ink">
-        {/* Top Airline Strip */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-ink bg-tomato px-3.5 py-1 text-paper">
-          <div className="flex items-center gap-2 font-mono text-xs font-extrabold uppercase tracking-widest">
-            <PlaneTakeoff className="h-3.5 w-3.5" />
-            <span>
-              BOARDING PASS #{String(data.programNumber).padStart(2, '0')} • FLIGHT {bp.flightCode} • {data.ekaStatusBadge}
-            </span>
-          </div>
+    <div className="flex h-full w-full flex-col justify-between py-1">
+      {/* Boarding Pass Header Strip */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-ink pb-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="border-2 border-ink bg-ink px-3 py-1 font-mono text-xs font-extrabold uppercase tracking-widest text-paper-cream shadow-ink-sm">
+            {data.orderLabel} • {data.boardingPass.fromCode} ➔ {data.boardingPass.toCode}
+          </span>
 
-          {/* Required Visible Badge for 5th University (Milano-Bicocca) */}
-          {data.agreementWarningBadge ? (
-            <div className="inline-flex items-center gap-1.5 border-2 border-ink bg-mustard px-2.5 py-0.5 font-mono text-xs font-extrabold text-ink shadow-[2px_2px_0px_#1B1B18]">
-              <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-ink" />
-              <span>{data.agreementWarningBadge}</span>
-            </div>
+          {/* EKA IT Agreement Badge */}
+          {data.ekaItPartnerConfirmed ? (
+            <span className="inline-flex items-center gap-1.5 border-2 border-ink bg-olive px-3 py-1 font-mono text-xs font-extrabold uppercase tracking-wider text-paper-cream shadow-ink-sm">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              {data.agreementBadge}
+            </span>
           ) : (
-            <span className="font-mono text-[11px] font-bold uppercase tracking-wider">
-              // 1 ITALIAN CFU = 1 EKA ECTS
+            <span className="inline-flex items-center gap-1.5 border-2 border-ink bg-mustard px-3 py-1 font-mono text-xs font-extrabold uppercase tracking-wider text-ink shadow-ink-sm">
+              <AlertTriangle className="h-3.5 w-3.5 text-tomato" />
+              {data.agreementBadge}
             </span>
           )}
         </div>
 
-        {/* Main Boarding Pass Stub Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 items-center">
-          {/* Left 6 cols: University Title & Program */}
-          <div className="lg:col-span-6 p-3">
-            <div className="flex flex-wrap items-center gap-2 mb-0.5">
-              <span className="border border-ink bg-mustard px-2 py-0.2 font-mono text-[11px] font-extrabold uppercase">
-                PASS 0{data.programNumber} / 05
-              </span>
-              <span className="font-mono text-xs font-bold text-ink/75">
-                {data.city}, {data.country} ({data.region})
-              </span>
-              <HandwrittenNote text={bp.handwrittenNote} className="hidden xl:inline-flex" />
-            </div>
+        <PassportStamp
+          text={data.boardingPass.stampText}
+          variant={data.ekaItPartnerConfirmed ? 'olive' : 'tomato'}
+          rotate={-3}
+        />
+      </div>
 
-            <motion.h1
-              layoutId="program-university-title"
-              className="misregister-title font-serif text-2xl sm:text-4xl xl:text-[44px] font-black leading-[0.98] tracking-tight text-ink"
-            >
-              <SplitText
-                text={`${data.university} — ${data.city}`}
-                delay={0.03}
-                reducedMotion={reducedMotion}
-              />
-            </motion.h1>
+      {/* Main 2-Column Boarding-Pass Layout (Same for Slides 5, 6, 7) */}
+      <div className="my-auto grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12">
+        {/* Left 6 Columns: Large Real Photo of University with Caption Overlay & Corner Credit */}
+        <motion.div
+          initial={reducedMotion ? false : { opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.45 }}
+          className="relative flex flex-col border-2 border-ink bg-paper-cream p-2.5 shadow-ink-lg lg:col-span-6"
+        >
+          <div aria-hidden="true" className="masking-tape" />
 
-            <p className="mt-1 font-sans text-xs sm:text-sm xl:text-[15px] font-bold text-olive">
-              {data.program}
-            </p>
-          </div>
-
-          {/* Center 4 cols: Airport Route (RIX -> IATA) & Gate / Seat / Class Fields for ECTS, Language, Cost */}
-          <div className="lg:col-span-4 border-t-2 lg:border-t-0 lg:border-l-2 border-dashed border-ink p-3 bg-paper/65">
-            <div className="flex items-center justify-between border-b border-ink/25 pb-1.5 mb-1.5">
-              <div>
-                <div className="font-mono text-[9px] font-bold uppercase text-ink/70">
-                  ORIGIN
-                </div>
-                <div className="font-mono text-lg font-extrabold text-ink leading-none">
-                  {bp.fromIata} <span className="text-xs font-normal">Riga</span>
-                </div>
-              </div>
-              <div className="font-mono text-base font-extrabold text-tomato">
-                ──✈──►
-              </div>
-              <div className="text-right">
-                <div className="font-mono text-[9px] font-bold uppercase text-ink/70">
-                  NEAREST AIRPORT
-                </div>
-                <div className="font-mono text-lg font-extrabold text-tomato leading-none">
-                  {bp.toIata}
-                </div>
-                <div className="font-mono text-[9px] text-ink/75">
-                  {bp.toAirportName}
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-1.5 font-mono text-[10px]">
-              <div className="border border-ink bg-cream px-1.5 py-1">
-                <div className="text-[9px] font-bold text-ink/65">GATE / CREDITS</div>
-                <div className="font-extrabold text-ink truncate">{data.totalEcts.split('•')[0]}</div>
-              </div>
-              <div className="border border-ink bg-cream px-1.5 py-1">
-                <div className="text-[9px] font-bold text-ink/65">CLASS / LANG</div>
-                <div className="font-extrabold text-olive truncate">
-                  {data.id === 'siena' ? '100% ENGLISH' : data.id === 'milan' ? 'MIXED EN/IT' : 'ITALIAN / EN'}
-                </div>
-              </div>
-              <div className="border border-ink bg-mustard/50 px-1.5 py-1">
-                <div className="text-[9px] font-bold text-ink/65">SEAT / COST</div>
-                <div className="font-extrabold text-ink truncate">
-                  ~{data.livingCostMid} EUR/mo
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right 2 cols: Perforated Stub with Stamp & Barcode */}
-          <div className="lg:col-span-2 hidden lg:flex flex-col items-center justify-between perforated-divider p-2.5 bg-cream">
-            <PassportStamp
-              text={bp.stampText}
-              variant={
-                data.id === 'siena'
-                  ? 'olive'
-                  : data.agreementWarningBadge
-                  ? 'mustard'
-                  : 'tomato'
-              }
-              rotate={-3}
-              className="mb-1.5 text-[10px] px-2 py-0.5"
+          <div className="relative flex-1 min-h-[260px] sm:min-h-[340px] w-full overflow-hidden border-2 border-ink">
+            <img
+              src={data.image}
+              alt={data.imageAlt}
+              loading="lazy"
+              className="duotone-photo h-full w-full object-cover"
             />
-            <BarcodeStrip code={bp.barcodeText} className="w-full" />
+            <div aria-hidden="true" className="halftone-overlay absolute inset-0" />
+
+            {/* University Name + City Caption Overlay */}
+            <div className="absolute bottom-3 left-3 right-3 border-2 border-ink bg-paper-cream/95 px-4 py-2.5 shadow-ink-sm">
+              <h1 className="font-display text-2xl font-black leading-tight text-ink sm:text-3xl">
+                {data.university}
+              </h1>
+              <div className="font-mono text-xs font-bold uppercase tracking-widest text-tomato">
+                {data.city}, {data.country} • GATE {data.boardingPass.gate}
+              </div>
+            </div>
+
+            {/* Tiny Credit Line in Top-Right Photo Corner */}
+            <div className="absolute right-2 top-2 border border-ink bg-ink/90 px-2 py-0.5 font-mono text-[10px] font-medium text-paper-cream">
+              {data.photoCredit}
+            </div>
           </div>
-        </div>
-      </header>
+        </motion.div>
 
-      {/* Main Content Grid (Identical 12-col layout across Slides 3–7 for easy comparison) */}
-      <div className="grid flex-1 grid-cols-1 lg:grid-cols-12 gap-3.5 items-stretch min-h-0">
-        {/* Left Card (4 cols): Major Study Courses with ECTS */}
-        <div className="lg:col-span-4 flex flex-col">
-          <TiltSpotlightCard
-            theme={data.theme}
-            codeTitle={`// courses/${data.id}.manifest`}
-            showTape
-            reducedMotion={reducedMotion}
-            className="h-full"
-          >
-            <div className="p-3.5 h-full">
-              <CourseTable
-                courses={data.courses}
-                coursesNote={data.coursesNote}
-                placeholder={data.coursesPlaceholder}
-                theme={data.theme}
-                reducedMotion={reducedMotion}
-              />
+        {/* Right 6 Columns: Program + Language, 3 Courses with ECTS, Campus, Cost+Medical, Additional Info */}
+        <motion.div
+          initial={reducedMotion ? false : { opacity: 0, x: 16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.45, delay: 0.08 }}
+          className="flex flex-col justify-between space-y-3 border-2 border-ink bg-paper-cream p-5 shadow-ink lg:col-span-6"
+        >
+          {/* 1. Program Name + Language of Instruction */}
+          <div className="border-b-2 border-dashed border-ink/35 pb-3">
+            <div className="font-mono text-[11px] font-bold uppercase tracking-widest text-tomato">
+              PROGRAM &amp; LANGUAGE
             </div>
-          </TiltSpotlightCard>
-        </div>
-
-        {/* Middle Card (3 cols): Campus + Split-Flap Living Cost Breakdown + Medical */}
-        <div className="lg:col-span-3 flex flex-col">
-          <TiltSpotlightCard
-            theme={data.theme}
-            codeTitle="// campus_and_living.sh"
-            reducedMotion={reducedMotion}
-            className="h-full"
-          >
-            <div className="p-3.5 flex flex-col justify-between h-full space-y-2">
-              {/* Campus & Tech Environment */}
-              <div className="border-2 border-ink bg-paper p-2.5">
-                <div className="font-mono text-[10px] font-extrabold uppercase tracking-wider text-olive flex items-center gap-1.5">
-                  <Cpu className="h-3.5 w-3.5 text-tomato" />
-                  <span>// campus &amp; tech labs</span>
-                </div>
-                <p className="mt-1 font-sans text-xs xl:text-[13px] font-semibold leading-snug text-ink">
-                  {data.campus}
-                </p>
-              </div>
-
-              {/* Living Cost Breakdown with Split-Flap Midpoint */}
-              <div className="border-2 border-ink bg-mustard/30 p-2.5">
-                <div className="flex items-center justify-between font-mono text-[10px] font-extrabold uppercase text-ink">
-                  <span>Monthly Living Cost</span>
-                  <span className="bg-ink text-paper px-1.5 py-0.2">{data.livingCost}</span>
-                </div>
-
-                <div className="mt-1.5 grid grid-cols-1 gap-0.5 font-mono text-[11px] text-ink">
-                  <div className="flex justify-between">
-                    <span className="text-ink/75">Rent:</span>
-                    <span className="font-bold">{data.livingCostBreakdown.rent}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-ink/75">Food:</span>
-                    <span className="font-bold">{data.livingCostBreakdown.food}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-ink/75">Transport:</span>
-                    <span className="font-bold">{data.livingCostBreakdown.transport}</span>
-                  </div>
-                  <div className="mt-1 flex items-center justify-between border-t border-ink/30 pt-1">
-                    <span className="font-bold">Board Midpoint:</span>
-                    <AnimatedCounter
-                      value={data.livingCostMid}
-                      suffix=" EUR"
-                      splitFlap
-                      reducedMotion={reducedMotion}
-                      className="text-xs font-extrabold"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Medical Support */}
-              <div className="border-2 border-ink bg-paper p-2 flex items-start gap-2">
-                <HeartPulse className="h-4 w-4 shrink-0 mt-0.5 text-tomato" />
-                <div>
-                  <div className="font-mono text-[10px] font-extrabold uppercase text-ink/75">
-                    Medical &amp; Insurance
-                  </div>
-                  <p className="font-sans text-xs font-bold leading-snug text-ink">
-                    {data.medical}
-                  </p>
-                </div>
-              </div>
+            <h2 className="mt-0.5 font-display text-xl font-black leading-snug text-ink sm:text-2xl">
+              {data.programName}
+            </h2>
+            <div className="mt-1.5 inline-block border border-ink bg-mustard px-2.5 py-0.5 font-mono text-xs font-extrabold uppercase text-ink">
+              Language: {data.language}
             </div>
-          </TiltSpotlightCard>
-        </div>
+          </div>
 
-        {/* Right Card (3 cols): Additional Info + Duotone/Halftone Real City Photo */}
-        <div className="lg:col-span-3 flex flex-col">
-          <TiltSpotlightCard
-            theme={data.theme}
-            codeTitle="// field_notes.md"
-            showTape
-            reducedMotion={reducedMotion}
-            className="h-full"
-          >
-            <div className="p-3.5 flex flex-col justify-between h-full">
-              <div>
-                <h3 className="font-serif text-lg xl:text-xl font-black text-ink mb-2">
-                  Additional Info &amp; Tech Scene
-                </h3>
-
-                <ul className="space-y-1.5">
-                  {data.goodToKnow.map((fact, idx) => (
-                    <motion.li
-                      key={fact}
-                      initial={reducedMotion ? false : { opacity: 0, x: 14 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.32, delay: 0.14 + idx * 0.07 }}
-                      className="flex items-start gap-2 text-xs xl:text-[13px] font-semibold leading-snug text-ink"
-                    >
-                      <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-olive" />
-                      <span>{fact}</span>
-                    </motion.li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Duotone / Halftone Editorial Crop of City Photo */}
-              <div className="mt-2 relative overflow-hidden border-2 border-ink h-28 xl:h-32 bg-tomato shadow-ink-sm">
-                <img
-                  src={data.image}
-                  alt={data.imageAlt}
-                  loading="lazy"
-                  decoding="async"
-                  className="h-full w-full object-cover grayscale contrast-125 mix-blend-multiply opacity-90 transition-transform duration-500 hover:scale-105"
-                />
-                <div className="halftone-overlay pointer-events-none absolute inset-0 opacity-20" />
-                <div className="absolute bottom-1.5 left-2 right-2 flex items-center justify-between border border-ink bg-cream px-2 py-0.5 font-mono text-[10px] font-extrabold text-ink">
-                  <span className="truncate pr-2">{data.vibe}</span>
-                  <span className="bg-tomato text-paper px-1.5 py-0.2 shrink-0">
-                    {data.overallRating}
+          {/* 2. 3 Main Courses with ECTS */}
+          <div className="border-b-2 border-dashed border-ink/35 pb-3">
+            <div className="mb-2 flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-widest text-olive">
+              <BookOpen className="h-3.5 w-3.5" />
+              <span>3 MAIN COURSES (1 CFU = 1 ECTS)</span>
+            </div>
+            <div className="space-y-2">
+              {data.courses.map((course) => (
+                <div
+                  key={course.name}
+                  className="flex items-center justify-between border-2 border-ink bg-paper-bg px-3.5 py-2 shadow-ink-sm"
+                >
+                  <span className="font-sans text-sm font-extrabold text-ink sm:text-base">
+                    {course.name}
+                  </span>
+                  <span className="ml-2 shrink-0 border border-ink bg-paper-cream px-2 py-0.5 font-mono text-xs font-extrabold text-tomato">
+                    {course.ects}
                   </span>
                 </div>
-              </div>
+              ))}
             </div>
-          </TiltSpotlightCard>
-        </div>
+          </div>
 
-        {/* Far Right Card (2 cols): Vintage Printed Italy Map with Ink Plane */}
-        <div className="lg:col-span-2 hidden lg:flex flex-col justify-center">
-          <TiltSpotlightCard
-            theme={isDark ? 'dark' : 'light'}
-            codeTitle="// map_route.svg"
-            reducedMotion={reducedMotion}
-            className="h-full"
-          >
-            <div className="p-2 flex flex-col justify-between h-full">
-              <ItalyMap
-                mode="program"
-                activeProgramNumber={data.programNumber}
-                theme={data.theme}
-                reducedMotion={reducedMotion}
-                onSelectCity={onSelectSlide}
-                className="w-full my-auto"
-              />
+          {/* 3. Campus + 4. Cost & Medical + 5. Additional Info (3 Short Lines) */}
+          <div className="space-y-2 text-sm sm:text-base">
+            <div className="flex items-start gap-2.5">
+              <Building2 className="mt-0.5 h-4 w-4 shrink-0 text-ink" />
+              <p className="font-sans font-bold text-ink">
+                <span className="font-mono text-xs uppercase text-ink/70">Campus: </span>
+                {data.campusLine}
+              </p>
             </div>
-          </TiltSpotlightCard>
-        </div>
+
+            <div className="flex items-start gap-2.5">
+              <HeartPulse className="mt-0.5 h-4 w-4 shrink-0 text-tomato" />
+              <p className="font-sans font-extrabold text-ink">
+                <span className="font-mono text-xs uppercase text-ink/70">Cost &amp; Medical: </span>
+                {data.costAndMedicalLine}
+              </p>
+            </div>
+
+            <div className="flex items-start gap-2.5">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-olive" />
+              <p className="font-sans font-bold text-ink">
+                <span className="font-mono text-xs uppercase text-ink/70">Extra: </span>
+                {data.additionalInfoLine}
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Bottom Boarding Stub Footer */}
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t-2 border-ink pt-2 font-mono text-[11px] font-bold uppercase tracking-wider text-ink/75">
+        <span>
+          PASSENGER: EKA CS STUDENT • SEAT {data.boardingPass.seat} • 30 ECTS / SEMESTER
+        </span>
+        <BarcodeStrip code={data.boardingPass.barcode} />
       </div>
     </div>
   );

@@ -2,29 +2,31 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   ALL_SLIDES_METADATA,
   PROGRAM_SLIDES,
+  SLIDE_1_TITLE,
+  SLIDE_3_LATVIA,
 } from './data/slides';
 import { Clouds } from './components/Clouds';
 import { Plane } from './components/Plane';
 import { ProgressBar } from './components/ProgressBar';
 import { SpeakerNotes } from './components/SpeakerNotes';
+import { ScriptModal } from './components/ScriptModal';
+import { QACheatSheetModal } from './components/QACheatSheetModal';
+import { RehearsalBar } from './components/RehearsalBar';
 import { Overview } from './components/Overview';
 import { SlideShell } from './components/SlideShell';
 import { CursorGlow } from './components/ui/AnimatedPrimitives';
 import { Slide1Title } from './components/slides/Slide1Title';
-import { Slide2Definition } from './components/slides/Slide2Definition';
-import { Slide3Milan } from './components/slides/Slide3Milan';
-import { Slide4Rome } from './components/slides/Slide4Rome';
-import { Slide5Siena } from './components/slides/Slide5Siena';
-import { Slide6Urbino } from './components/slides/Slide6Urbino';
-import { Slide7Teramo } from './components/slides/Slide7Teramo';
+import { Slide2Hook } from './components/slides/Slide2Hook';
+import { Slide3Latvia } from './components/slides/Slide3Latvia';
+import { Slide4Erasmus } from './components/slides/Slide4Erasmus';
+import { ProgramSlideView } from './components/slides/ProgramSlideView';
 import { Slide8Comparison } from './components/slides/Slide8Comparison';
 import { Slide9Winner } from './components/slides/Slide9Winner';
-import { Slide10Thanks } from './components/slides/Slide10Thanks';
-import { Slide11Finale } from './components/slides/Slide11Finale';
+import { Slide10Finale } from './components/slides/Slide10Finale';
 import { PrintDeck } from './components/PrintDeck';
 import { soundManager } from './utils/sound';
 
-const TOTAL_SLIDES = ALL_SLIDES_METADATA.length;
+const TOTAL_SLIDES = ALL_SLIDES_METADATA.length; // 10 slides
 
 function parseSlideFromHash(hash: string): number {
   const match = hash.match(/^#slide-(\d+)$/i);
@@ -45,6 +47,9 @@ export const App: React.FC = () => {
   const [direction, setDirection] = useState<1 | -1>(1);
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const [notesOpen, setNotesOpen] = useState<boolean>(false);
+  const [scriptOpen, setScriptOpen] = useState<boolean>(false);
+  const [qaOpen, setQaOpen] = useState<boolean>(false);
+  const [rehearsalOpen, setRehearsalOpen] = useState<boolean>(false);
   const [overviewOpen, setOverviewOpen] = useState<boolean>(false);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(false);
   const [reducedMotion, setReducedMotion] = useState<boolean>(() =>
@@ -53,15 +58,33 @@ export const App: React.FC = () => {
       : false
   );
 
-  // Preload all city WebP images and hamster poster so transitions have zero lag
+  // Preload all WebP photos & hamster poster so transitions have zero flash
   useEffect(() => {
-    PROGRAM_SLIDES.forEach((p) => {
+    const urls = [
+      SLIDE_1_TITLE.image,
+      SLIDE_3_LATVIA.image,
+      ...PROGRAM_SLIDES.map((p) => p.image),
+      '/media/hamster-poster.jpg',
+    ];
+    urls.forEach((src) => {
       const img = new Image();
-      img.src = p.image;
+      img.src = src;
     });
-    const poster = new Image();
-    poster.src = '/media/hamster-poster.jpg';
   }, []);
+
+  // Preload hamster video when reaching Slide 9
+  useEffect(() => {
+    if (currentSlide === 9) {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'video';
+      link.href = '/media/hamster.mp4';
+      document.head.appendChild(link);
+      return () => {
+        document.head.removeChild(link);
+      };
+    }
+  }, [currentSlide]);
 
   // Respect prefers-reduced-motion & monitor FPS on weak projectors/laptops
   useEffect(() => {
@@ -114,21 +137,18 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, [currentSlide, isPrintMode]);
 
-  const goToSlide = useCallback(
-    (target: number) => {
-      const clamped = Math.max(1, Math.min(TOTAL_SLIDES, target));
-      setCurrentSlide((prev) => {
-        if (clamped === prev) return prev;
-        setDirection(clamped > prev ? 1 : -1);
-        setIsTransitioning(true);
-        soundManager.playWhoosh();
-        window.history.pushState(null, '', `#slide-${clamped}`);
-        window.setTimeout(() => setIsTransitioning(false), 680);
-        return clamped;
-      });
-    },
-    []
-  );
+  const goToSlide = useCallback((target: number) => {
+    const clamped = Math.max(1, Math.min(TOTAL_SLIDES, target));
+    setCurrentSlide((prev) => {
+      if (clamped === prev) return prev;
+      setDirection(clamped > prev ? 1 : -1);
+      setIsTransitioning(true);
+      soundManager.playWhoosh();
+      window.history.pushState(null, '', `#slide-${clamped}`);
+      window.setTimeout(() => setIsTransitioning(false), 680);
+      return clamped;
+    });
+  }, []);
 
   const goNext = useCallback(() => {
     setCurrentSlide((prev) => {
@@ -174,6 +194,8 @@ export const App: React.FC = () => {
 
   const handleRestart = useCallback(() => {
     setOverviewOpen(false);
+    setScriptOpen(false);
+    setQaOpen(false);
     goToSlide(1);
   }, [goToSlide]);
 
@@ -184,19 +206,21 @@ export const App: React.FC = () => {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
 
+      const anyModalOpen = overviewOpen || scriptOpen || qaOpen;
+
       switch (e.key) {
         case 'ArrowRight':
         case 'ArrowDown':
         case 'PageDown':
         case ' ':
           e.preventDefault();
-          if (!overviewOpen) goNext();
+          if (!anyModalOpen) goNext();
           break;
         case 'ArrowLeft':
         case 'ArrowUp':
         case 'PageUp':
           e.preventDefault();
-          if (!overviewOpen) goPrev();
+          if (!anyModalOpen) goPrev();
           break;
         case 'f':
         case 'F':
@@ -208,6 +232,21 @@ export const App: React.FC = () => {
           e.preventDefault();
           setNotesOpen((prev) => !prev);
           break;
+        case 'p':
+        case 'P':
+          e.preventDefault();
+          setScriptOpen((prev) => !prev);
+          break;
+        case 'q':
+        case 'Q':
+          e.preventDefault();
+          setQaOpen((prev) => !prev);
+          break;
+        case 't':
+        case 'T':
+          e.preventDefault();
+          setRehearsalOpen((prev) => !prev);
+          break;
         case 'o':
         case 'O':
           e.preventDefault();
@@ -215,7 +254,11 @@ export const App: React.FC = () => {
           break;
         case 'Escape':
           e.preventDefault();
-          if (notesOpen) {
+          if (scriptOpen) {
+            setScriptOpen(false);
+          } else if (qaOpen) {
+            setQaOpen(false);
+          } else if (notesOpen) {
             setNotesOpen(false);
           } else {
             setOverviewOpen((prev) => !prev);
@@ -230,8 +273,8 @@ export const App: React.FC = () => {
           break;
         case 'r':
         case 'R':
-          // On Slide 11, R replays the hamster video (captured in Slide11Finale); elsewhere restarts deck
-          if (currentSlide !== 11 || e.shiftKey) {
+          // On Slide 10, R replays the hamster video (captured in Slide10Finale); elsewhere restarts deck
+          if (currentSlide !== 10 || e.shiftKey) {
             e.preventDefault();
             handleRestart();
           }
@@ -260,6 +303,8 @@ export const App: React.FC = () => {
     isPrintMode,
     notesOpen,
     overviewOpen,
+    qaOpen,
+    scriptOpen,
     toggleFullscreen,
     toggleSound,
   ]);
@@ -282,40 +327,30 @@ export const App: React.FC = () => {
           />
         );
       case 2:
-        return <Slide2Definition reducedMotion={reducedMotion} />;
+        return <Slide2Hook reducedMotion={reducedMotion} />;
       case 3:
-        return (
-          <Slide3Milan
-            reducedMotion={reducedMotion}
-            onSelectSlide={goToSlide}
-          />
-        );
+        return <Slide3Latvia reducedMotion={reducedMotion} />;
       case 4:
-        return (
-          <Slide4Rome
-            reducedMotion={reducedMotion}
-            onSelectSlide={goToSlide}
-          />
-        );
+        return <Slide4Erasmus reducedMotion={reducedMotion} />;
       case 5:
         return (
-          <Slide5Siena
+          <ProgramSlideView
+            data={PROGRAM_SLIDES[0]}
             reducedMotion={reducedMotion}
-            onSelectSlide={goToSlide}
           />
         );
       case 6:
         return (
-          <Slide6Urbino
+          <ProgramSlideView
+            data={PROGRAM_SLIDES[1]}
             reducedMotion={reducedMotion}
-            onSelectSlide={goToSlide}
           />
         );
       case 7:
         return (
-          <Slide7Teramo
+          <ProgramSlideView
+            data={PROGRAM_SLIDES[2]}
             reducedMotion={reducedMotion}
-            onSelectSlide={goToSlide}
           />
         );
       case 8:
@@ -333,17 +368,9 @@ export const App: React.FC = () => {
           />
         );
       case 10:
-        return (
-          <Slide10Thanks
-            reducedMotion={reducedMotion}
-            onNext={goNext}
-            onSelectSlide={goToSlide}
-          />
-        );
-      case 11:
       default:
         return (
-          <Slide11Finale
+          <Slide10Finale
             reducedMotion={reducedMotion}
             onRestartDeck={handleRestart}
           />
@@ -359,10 +386,13 @@ export const App: React.FC = () => {
         className="paper-grain pointer-events-none fixed inset-0 z-30 opacity-[0.045] print:hidden"
       />
 
-      {/* Editorial Reticle Cursor (no neon glow) */}
+      {/* Editorial Reticle Cursor */}
       <CursorGlow theme={slideMeta.theme} disabled={reducedMotion} />
 
-      {/* Editorial Paper Cutout Clouds & Registration Marks */}
+      {/* Rehearsal Mode Timer Bar (Toggled with T) */}
+      <RehearsalBar isOpen={rehearsalOpen} currentSlide={currentSlide} />
+
+      {/* Editorial Paper Cutout Clouds */}
       <Clouds
         theme={slideMeta.theme}
         isTransitioning={isTransitioning}
@@ -398,6 +428,20 @@ export const App: React.FC = () => {
         onClose={() => setNotesOpen(false)}
       />
 
+      {/* Full Speaking Script Overview Modal (Toggled with P) */}
+      <ScriptModal
+        isOpen={scriptOpen}
+        currentSlide={currentSlide}
+        onSelectSlide={goToSlide}
+        onClose={() => setScriptOpen(false)}
+      />
+
+      {/* Q&A Cheat Sheet Modal (Toggled with Q) */}
+      <QACheatSheetModal
+        isOpen={qaOpen}
+        onClose={() => setQaOpen(false)}
+      />
+
       {/* Slide Overview Grid (Toggled with O or Esc) */}
       <Overview
         isOpen={overviewOpen}
@@ -412,11 +456,17 @@ export const App: React.FC = () => {
         totalSlides={TOTAL_SLIDES}
         theme={slideMeta.theme}
         notesOpen={notesOpen}
+        scriptOpen={scriptOpen}
+        qaOpen={qaOpen}
+        rehearsalOpen={rehearsalOpen}
         soundEnabled={soundEnabled}
         onSelectSlide={goToSlide}
         onPrev={goPrev}
         onNext={goNext}
         onToggleNotes={() => setNotesOpen((prev) => !prev)}
+        onToggleScript={() => setScriptOpen((prev) => !prev)}
+        onToggleQA={() => setQaOpen((prev) => !prev)}
+        onToggleRehearsal={() => setRehearsalOpen((prev) => !prev)}
         onToggleOverview={() => setOverviewOpen((prev) => !prev)}
         onToggleSound={toggleSound}
         onRestart={handleRestart}

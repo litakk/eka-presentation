@@ -39,17 +39,23 @@ for (const [label, fg, bg] of pairs) {
   if (ratio < 4.5) process.exit(1);
 }
 
-console.log('\n=== 2. Offline Production Bundle & Media Check ===');
+console.log('\n=== 2. Offline Production Bundle, Wikimedia Photos, Video & SCRIPT.md Check ===');
+if (!fs.existsSync(path.resolve('SCRIPT.md'))) {
+  console.error('Missing SCRIPT.md in project root!');
+  process.exit(1);
+}
+console.log(`  Found root SCRIPT.md (${fs.statSync(path.resolve('SCRIPT.md')).size} bytes)`);
+
 const distDir = path.resolve('dist');
 const requiredFiles = [
   'index.html',
   'favicon.svg',
-  'Erasmus-Italy-5-Study-Programs-Slides.pdf',
-  'images/milan.webp',
+  'Erasmus-Italy-3-Study-Programs-Slides.pdf',
+  'images/italy-hero.webp',
+  'images/riga.webp',
   'images/siena.webp',
-  'images/urbino.webp',
-  'images/perugia.webp',
-  'images/teramo.webp',
+  'images/milan-bicocca.webp',
+  'images/roma-tre.webp',
   'media/hamster.mp4',
   'media/hamster.webm',
   'media/hamster-poster.jpg',
@@ -83,7 +89,7 @@ if (/https?:\/\//i.test(stripXmlns(builtHtml)) || /https?:\/\//i.test(stripXmlns
 }
 console.log('  Zero external URLs in built HTML & CSS (100% offline-ready): PASS');
 
-console.log('\n=== 3. Component Render & CS/IT + Slide 11 Hamster Finale Verification ===');
+console.log('\n=== 3. Component Render, 10 Slides, Script, Q&A & Rehearsal Verification ===');
 const vite = await createServer({
   server: { middlewareMode: true, hmr: false },
   appType: 'custom',
@@ -92,46 +98,48 @@ const vite = await createServer({
 try {
   const { PrintDeck } = await vite.ssrLoadModule('/src/components/PrintDeck.tsx');
   const { SpeakerNotes } = await vite.ssrLoadModule('/src/components/SpeakerNotes.tsx');
+  const { ScriptModal } = await vite.ssrLoadModule('/src/components/ScriptModal.tsx');
+  const { QACheatSheetModal } = await vite.ssrLoadModule('/src/components/QACheatSheetModal.tsx');
+  const { RehearsalBar } = await vite.ssrLoadModule('/src/components/RehearsalBar.tsx');
   const { Overview } = await vite.ssrLoadModule('/src/components/Overview.tsx');
-  const { ALL_SLIDES_METADATA } = await vite.ssrLoadModule('/src/data/slides.ts');
+  const { ALL_SLIDES_METADATA, SPEAKING_SCRIPTS, QA_CHEAT_SHEET } = await vite.ssrLoadModule('/src/data/slides.ts');
 
-  if (ALL_SLIDES_METADATA.length !== 11) {
-    throw new Error(`Expected 11 slides, found ${ALL_SLIDES_METADATA.length}`);
+  if (ALL_SLIDES_METADATA.length !== 10 || SPEAKING_SCRIPTS.length !== 10) {
+    throw new Error(`Expected 10 slides, found ${ALL_SLIDES_METADATA.length}`);
+  }
+  if (QA_CHEAT_SHEET.length < 7) {
+    throw new Error(`Expected 7 Q&A items, found ${QA_CHEAT_SHEET.length}`);
   }
 
   const rawMarkup = ReactDOMServer.renderToString(React.createElement(PrintDeck));
   const deckMarkup = rawMarkup.replace(/<!--.*?-->/g, '');
 
   const expectedSnippets = [
-    'Erasmus+ in Italy: 5 Study Programs',
-    'Partner universities of EKA University of Applied Sciences',
-    '2–12 months',
-    '0 EUR',
-    '30 ECTS',
-    '7.0 min',
-    'Milano-Bicocca',
-    'Check EKA agreement for IT with erasmus@eka.edu.lv',
-    'MXP / LIN',
-    'Advanced Machine Learning (F1801Q151)',
+    'Erasmus+ in Italy: 3 Study Programs',
+    'Photo: Georges Jansoone (JoJan), CC BY-SA 3.0',
+    'If you could study anywhere in Europe for one semester and pay no tuition, where would you go?',
+    'a new country',
+    'new friends',
+    'real IT experience',
+    'Today I show you Italy.',
+    'About Latvia: Our Starting Point',
+    'From Riga to Italy',
+    'Photo: Diliff, CC BY-SA 3.0',
+    'What is Erasmus+?',
     'University of Siena',
+    'Photo: Sailko, CC BY-SA 3.0',
     'Artificial Intelligence',
-    '600–950 EUR/month',
-    'Urbino Carlo Bo',
-    'Informatica e Innovazione Digitale',
-    'Sicurezza Informatica (Cybersecurity)',
-    'University for Foreigners of Perugia',
-    'Fondamenti di informatica umanistica (Humanities Computing)',
-    'University of Teramo',
-    'Big Data Analytics',
-    '[to be verified]',
-    'Comparison of All 5 IT Programs',
-    'Which is the best choice?',
-    'Official Sources',
-    'THE END',
-    'FINE',
+    'University of Milano-Bicocca',
+    'Confirm IT agreement with EKA Erasmus coordinator',
+    'Photo: Facquis, CC BY-SA 4.0',
+    'Roma Tre University',
+    'Algorithms for Big Data',
+    'Photo: Università degli Studi Roma TRE, CC BY-SA 4.0',
+    'Comparison of the 3 Universities',
+    'Out of 3 Erasmus+ universities, I choose Siena.',
+    'MY CHOICE',
+    'Thank you!',
     '/media/hamster.mp4',
-    '/media/hamster.webm',
-    '/media/hamster-poster.jpg',
     'mix-blend-multiply',
     'Any questions?',
   ];
@@ -143,20 +151,55 @@ try {
     console.log(`  Rendered & verified content: "${snippet}"`);
   }
 
-  for (let i = 1; i <= 11; i++) {
+  for (let i = 1; i <= 10; i++) {
     const notesHtml = ReactDOMServer.renderToString(
       React.createElement(SpeakerNotes, {
         isOpen: true,
         slideNumber: i,
         onClose: () => {},
       })
-    );
-    const meta = ALL_SLIDES_METADATA[i - 1];
-    if (!notesHtml.includes(`#slide-${i}`) || !notesHtml.includes(meta.speakerNotes.slice(0, 20))) {
+    ).replace(/<!--.*?-->/g, '');
+    const script = SPEAKING_SCRIPTS[i - 1];
+    if (!notesHtml.includes(`#slide-${i}`) || !notesHtml.includes(script.timeRange)) {
       throw new Error(`SpeakerNotes failed for slide ${i}`);
     }
   }
-  console.log('  Verified SpeakerNotes overlay & hash for all 11 slides (#slide-1 .. #slide-11): PASS');
+  console.log('  Verified SpeakerNotes overlay (Key N) for all 10 slides: PASS');
+
+  const scriptModalHtml = ReactDOMServer.renderToString(
+    React.createElement(ScriptModal, {
+      isOpen: true,
+      currentSlide: 1,
+      onSelectSlide: () => {},
+      onClose: () => {},
+    })
+  );
+  if (!scriptModalHtml.includes('FULL SPEAKING SCRIPT') || !scriptModalHtml.includes('8–10 minutes')) {
+    throw new Error('ScriptModal (Key P) failed render check');
+  }
+  console.log('  Verified ScriptModal (Key P) with all 10 slide scripts & timings: PASS');
+
+  const qaModalHtml = ReactDOMServer.renderToString(
+    React.createElement(QACheatSheetModal, {
+      isOpen: true,
+      onClose: () => {},
+    })
+  );
+  if (!qaModalHtml.includes('Why Italy? Why Siena and not Milan or Rome?')) {
+    throw new Error('QACheatSheetModal (Key Q) failed render check');
+  }
+  console.log('  Verified QACheatSheetModal (Key Q) with 7 teacher Q&A answers: PASS');
+
+  const rehearsalHtml = ReactDOMServer.renderToString(
+    React.createElement(RehearsalBar, {
+      isOpen: true,
+      currentSlide: 5,
+    })
+  );
+  if (!rehearsalHtml.includes('REHEARSAL [T]')) {
+    throw new Error('RehearsalBar (Key T) failed render check');
+  }
+  console.log('  Verified RehearsalBar (Key T) timer & pace indicator: PASS');
 
   const overviewHtml = ReactDOMServer.renderToString(
     React.createElement(Overview, {
@@ -166,12 +209,12 @@ try {
       onClose: () => {},
     })
   );
-  if (!overviewHtml.includes('Slide Overview') || !overviewHtml.includes('PDF Backup')) {
+  if (!overviewHtml.includes('10 Boarding Cards')) {
     throw new Error('Overview grid failed render check');
   }
-  console.log('  Verified Overview 11-slide grid & PDF backup link: PASS');
+  console.log('  Verified Overview 10-slide grid (Key O): PASS');
 } finally {
   await vite.close();
 }
 
-console.log('\nALL 11 SLIDES, EDITORIAL REDESIGN & HAMSTER FINALE CHECKS PASSED!');
+console.log('\nALL UPDATE 3 & UPDATE 4 CHECKS PASSED SUCCESSFULLY!');

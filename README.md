@@ -1,44 +1,34 @@
-# Erasmus+ in Italy: 5 Study Programs (Computer Science / IT Track)
+# Erasmus+ in Italy: 3 Study Programs (Computer Science / IT Track)
 
 An interactive, editorial / travel-poster / boarding-pass 16:9 presentation website built with **React 18, TypeScript, Vite, Tailwind CSS, Framer Motion, GSAP (`MotionPathPlugin`), Lottie, and `canvas-confetti`**.
 
-Created for a live classroom presentation by a **Computer Science (IT)** student at **EKA University of Applied Sciences (Riga, Latvia)** comparing 5 Erasmus+ Computer Science & IT study programs in Italy, plus a 12-second **Dancing Hamster Finale (`Slide 11 — THE END`)**:
-1. **Milano-Bicocca (Milan — `RIX → MXP/LIN`)** — *MSc Computer Science (`LM-18`, DISCo)* *(with visible stamp/badge: `Check EKA agreement for IT with erasmus@eka.edu.lv`)*
-2. **University of Siena (Siena — `RIX → FLR`)** — *MSc Artificial Intelligence & Automation Engineering / Computer & Automation Engineering (`LM-32`, 100% English)* — **Confirmed EKA IT Partner & Winner (`BEST CHOICE` stamp)**
-3. **Urbino Carlo Bo (Urbino — `RIX → RMI/AOI`)** — *MSc Informatica e Innovazione Digitale (`LM-18` Computer Science)* — **Confirmed EKA IT Partner**
-4. **University for Foreigners of Perugia (Perugia — `RIX → PEG`)** — *Digital Humanities & Comunicazione Digitale (UX Design, Humanities Computing & AI Labs)* — **Confirmed EKA IT Partner**
-5. **University of Teramo (Teramo — `RIX → PSR`)** — *Big Data Analytics, Cybersecurity & Digital Innovation Modules* — **Confirmed EKA IT Partner**
+Created for a live 8–10 minute classroom presentation by a **Computer Science (IT)** student at **EKA University of Applied Sciences (Riga, Latvia)**.
 
 ---
 
-## 1. Visual Design System (Editorial / Boarding-Pass / Print Zine)
+## 1. Slide Order (10 Slides Total)
 
-- **Flat Archival Palette** (no gradients, no glowing blobs, no glassmorphism):
-  - Warm Paper `#F2EADB`, Cream Card `#FAF6EE`, Deep Ink `#1B1B18`, Tomato Red `#C9472B`, Olive/Basil `#3F5B3A`, Mustard `#E0A526`, and Pale Sky `#CFE0E6` as a rare accent.
-- **Self-Hosted Typography**:
-  - **Fraunces** (`@fontsource/fraunces`) — expressive display serif for headings and oversized slide numbers (`01`–`11`)
-  - **Archivo** (`@fontsource/archivo`) — clean editorial grotesk for body copy
-  - **JetBrains Mono** (`@fontsource/jetbrains-mono`) — monospace for boarding pass codes, IATA airport codes, course codes, and split-flap counters
-- **Slide 11 ("THE END") Hamster Video Finale**:
-  - Uses `public/media/hamster.mp4` and `public/media/hamster.webm` with poster `public/media/hamster-poster.jpg`.
-  - Blends the white video background seamlessly into the warm paper stage via `mix-blend-mode: multiply`.
-  - Features a theatre-curtain reveal, bouncy entrance, rotating Italian `"FINE"` stamp, circling paper plane, `canvas-confetti` burst on completion, and `"Any questions?_"` typing reveal.
+1. **Slide 1 — Title**: *"Erasmus+ in Italy: 3 Study Programs"* (Computer Science focus, Italy photo + interactive route map)
+2. **Slide 2 — Discussion Hook**: *"If you could study anywhere in Europe for one semester and pay no tuition, where would you go?"* (`a new country`, `new friends`, `real IT experience`)
+3. **Slide 3 — About Latvia**: 5 verified facts about Latvia & Riga (`Riga on the Baltic Sea`, `EU since 2004 / Euro since 2014`, `~1.9M population (approx.)`, `UNESCO Riga Historic Centre`, `EKA in Riga`), Baltic states map + Riga Old Town photo (`From Riga to Italy • RIX → IT`)
+4. **Slide 4 — What is Erasmus+?**: 4 split-flap stat cards (`2–12 months`, `0 EUR tuition at host`, `30 ECTS per semester`, `7.0 minimum average at EKA`, `apply in October / March`)
+5. **Slide 5 — University 1: University of Siena**: *MSc Artificial Intelligence & Automation Engineering* (`English`, confirmed EKA IT partner, `600–950 EUR/month`)
+6. **Slide 6 — University 2: University of Milano-Bicocca**: *MSc Computer Science (`LM-18`)* (`English & Italian, B2 English`, `900–1,300 EUR/month`, badge: `Confirm IT agreement with EKA Erasmus coordinator`)
+7. **Slide 7 — University 3: Roma Tre University**: *MSc Computer Science Engineering & AI (`LM-32`)* (`Italian + English course units`, `850–1,200 EUR/month`, badge: `Confirm IT agreement with EKA Erasmus coordinator`)
+8. **Slide 8 — Comparison of the 3**: Compact 3-row table (`Language`, `Cost / Month`, `IT Relevance`, `Vibe`) + animated cost bar chart (`775 EUR`, `1,025 EUR`, `1,100 EUR`)
+9. **Slide 9 — Which is the best choice?**: *"Out of 3 Erasmus+ universities, I choose Siena."* — 3 verified reasons, `"MY CHOICE"` stamp, spotlight & confetti
+10. **Slide 10 — Finale: Thank you / Any questions?**: 12-second dancing hamster cutout video (`public/media/hamster.mp4`, `mix-blend-mode: multiply`), rotating `"FINE"` stamp, confetti burst, `"Any questions?_"` typing reveal, and official sources footer
 
 ---
 
-## 2. Quick Start & Offline Production Build
+## 2. Complete Speaking Script, Q&A Cheat Sheet & Rehearsal Mode
 
-```bash
-npm install
-npm run dev
-```
-
-All fonts (**Fraunces**, **Archivo**, **JetBrains Mono**), city photographs (`public/images/*.webp`), and the hamster finale video (`public/media/hamster.mp4`, `public/media/hamster.webm`, `public/media/hamster-poster.jpg`) are **100% bundled locally**—the presentation works completely offline:
-
-```bash
-npm run build
-npm run preview
-```
+- **Printable Script & Q&A File**: **[`SCRIPT.md`](./SCRIPT.md)** (includes slide goals, time budgets, on-screen animation order, exact B1 English words to say with `[pause]` / `[look at audience]` / `[point at screen]` cues, transition sentences, Uzbek translations for personal study, and 7 likely teacher Q&A answers).
+- **In-App Overlays**:
+  - Press **`N`** — **Speaker Notes** bar for the active slide (with optional Uzbek hint toggle)
+  - Press **`P`** — **Full Speaking Script** overview modal across all 10 slides with timing
+  - Press **`Q`** — **Teacher Q&A Cheat Sheet** modal (7 questions with 2-sentence answers)
+  - Press **`T`** — **Rehearsal Timer Mode** (shows elapsed time vs. slide target time and turns **Green / Yellow / Red**)
 
 ---
 
@@ -48,30 +38,48 @@ npm run preview
 | :--- | :--- |
 | `→` / `↓` / `Space` / `PageDown` | Next slide |
 | `←` / `↑` / `PageUp` | Previous slide |
+| `N` | Toggle **Speaker Notes** panel for current slide |
+| `P` | Toggle **Full Speaking Script** overview modal |
+| `Q` | Toggle **Teacher Q&A Cheat Sheet** modal |
+| `T` | Toggle **Rehearsal Mode** timer bar (Green / Yellow / Red pace indicator) |
+| `O` or `Esc` | Toggle **Slide Overview** 10-slide grid |
 | `F` | Toggle Fullscreen mode |
-| `N` | Toggle **Speaker Notes** overlay (presenter script for each slide) |
-| `O` or `Esc` | Toggle **Slide Overview** 11-slide grid |
-| `S` or `M` | Toggle sound (toggles hamster video audio on Slide 11 & UI sound effects) |
-| `R` | Replay hamster video on Slide 11 (or restart deck on other slides) |
+| `S` or `M` | Toggle sound (hamster video audio on Slide 10 & UI sounds) |
+| `R` | Replay hamster video on Slide 10 (or restart deck on other slides) |
 | `Home` | Restart presentation from Slide 01 (`#slide-1`) |
-| `End` | Jump to Slide 11 (`#slide-11`) |
-| URL Hash (`#slide-1` … `#slide-11`) | Jump directly to any slide during Q&A |
+| `End` | Jump to Slide 10 (`#slide-10`) |
 
 ---
 
-## 4. How to Edit Slide Content & Regenerate PDF Backup
+## 4. Quick Start & Offline Build
 
-All presentation text, boarding-pass metadata, course tables, ECTS/CFU credits, living cost breakdowns, and speaker notes live in:
-- **[`src/data/slides.ts`](./src/data/slides.ts)**
-
-To regenerate the 11-slide 16:9 static PDF backup (`./Erasmus-Italy-5-Study-Programs-Slides.pdf`):
 ```bash
-npm run export-pdf
+npm install
+npm run dev
+```
+
+Build and preview offline (zero external runtime requests):
+
+```bash
+npm run build
+npm run preview
 ```
 
 ---
 
-## 5. CREDITS & Licenses
+## 5. CREDITS & Licenses (Wikimedia Commons Photos & Code)
+
+### Verified Photographs (Wikimedia Commons — Bundled Locally in `public/images/`)
+
+| Slide & Subject | Local File | Author | License | Wikimedia Commons Source |
+| :--- | :--- | :--- | :--- | :--- |
+| **Slide 1 — Italy (Piazza del Campo, Siena)** | `public/images/italy-hero.webp` | Georges Jansoone (`JoJan`) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) | [File:Siena.Campo.pano01.jpg](https://commons.wikimedia.org/wiki/File:Siena.Campo.pano01.jpg) |
+| **Slide 3 — Riga Old Town (House of the Blackheads)** | `public/images/riga.webp` | David Iliff (`Diliff`) | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) | [File:House of Blackheads at Dusk 3, Riga, Latvia - Diliff.jpg](https://commons.wikimedia.org/wiki/File:House_of_Blackheads_at_Dusk_3,_Riga,_Latvia_-_Diliff.jpg) |
+| **Slide 5 — University of Siena (Palazzo del Rettorato Courtyard)** | `public/images/siena.webp` | `Sailko` | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) | [File:Siena, palazzo dell'università, cortile 01.JPG](https://commons.wikimedia.org/wiki/File:Siena,_palazzo_dell%27universit%C3%A0,_cortile_01.JPG) |
+| **Slide 6 — University of Milano-Bicocca (Building U12)** | `public/images/milan-bicocca.webp` | `Facquis` | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [File:Bicocca edificio U12.jpg](https://commons.wikimedia.org/wiki/File:Bicocca_edificio_U12.jpg) |
+| **Slide 7 — Roma Tre University (Nuovo Rettorato)** | `public/images/roma-tre.webp` | `Università degli Studi Roma TRE` | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [File:Nuovo Rettorato Roma TRE.jpg](https://commons.wikimedia.org/wiki/File:Nuovo_Rettorato_Roma_TRE.jpg) |
+
+### Libraries, Fonts & Media
 
 | Asset / Component | Author / Source | Link | License |
 | :--- | :--- | :--- | :--- |
@@ -83,10 +91,7 @@ npm run export-pdf
 | **lottie-react** & **lottie-web** | Gamote / Airbnb | [github.com/Gamote/lottie-react](https://github.com/Gamote/lottie-react) | MIT License |
 | **canvas-confetti** | Kiril Vatev (`catdad`) | [github.com/catdad/canvas-confetti](https://github.com/catdad/canvas-confetti) | ISC License |
 | **Lucide Icons** (`lucide-react`) | Lucide Contributors | [lucide.dev](https://lucide.dev/license) | ISC / MIT License |
-| **Tailwind CSS** | Tailwind Labs Inc. | [tailwindcss.com](https://tailwindcss.com) | MIT License |
-| **Fraunces** (`@fontsource/fraunces`) | Undercase Type (Phaedra Charles & Flavia Zimbardi) | [github.com/undercasetype/Fraunces](https://github.com/undercasetype/Fraunces) | SIL Open Font License 1.1 (OFL-1.1) |
-| **Archivo** (`@fontsource/archivo`) | Omnibus-Type | [github.com/Omnibus-Type/Archivo](https://github.com/Omnibus-Type/Archivo) | SIL Open Font License 1.1 (OFL-1.1) |
-| **JetBrains Mono** (`@fontsource/jetbrains-mono`) | JetBrains s.r.o. | [github.com/JetBrains/JetBrainsMono](https://github.com/JetBrains/JetBrainsMono) | SIL Open Font License 1.1 (OFL-1.1) |
-| **Italy Vector Map Outline** (`ItalyMap.tsx`) | Adapted from Wikimedia / Simplemaps simplified vector coordinates | [simplemaps.com/resources/svg-it](https://simplemaps.com/resources/svg-it) | Free Commercial & Personal Use / MIT |
-| **City Photographs** (`milan.webp`, `siena.webp`, `urbino.webp`, `perugia.webp`, `teramo.webp`) | Unsplash Contributors | [unsplash.com/license](https://unsplash.com/license) | Unsplash Free License |
+| **Fraunces** (`@fontsource/fraunces`) | Undercase Type | [github.com/undercasetype/Fraunces](https://github.com/undercasetype/Fraunces) | SIL Open Font License 1.1 |
+| **Archivo** (`@fontsource/archivo`) | Omnibus-Type | [github.com/Omnibus-Type/Archivo](https://github.com/Omnibus-Type/Archivo) | SIL Open Font License 1.1 |
+| **JetBrains Mono** (`@fontsource/jetbrains-mono`) | JetBrains s.r.o. | [github.com/JetBrains/JetBrainsMono](https://github.com/JetBrains/JetBrainsMono) | SIL Open Font License 1.1 |
 | **Hamster Finale Video** (`public/media/hamster.mp4`) | Provided by Presenter | Local asset | Presenter-provided media |

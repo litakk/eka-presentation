@@ -33,6 +33,7 @@ export const TechIcon: React.FC<{ name: TechIconName; className?: string }> = ({
  */
 interface SplitTextProps {
   text: string;
+  as?: string;
   className?: string;
   delay?: number;
   stagger?: number;

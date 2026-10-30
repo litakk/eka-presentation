@@ -1,25 +1,14 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import {
-  CheckCircle2,
-  Crown,
-  Sparkles,
-  Terminal,
-  TrendingUp,
-} from 'lucide-react';
-import { PROGRAM_SLIDES, SLIDE_9_WINNER } from '../../data/slides';
+import { Award, CheckCircle2 } from 'lucide-react';
+import { SLIDE_9_WINNER } from '../../data/slides';
+import { BarcodeStrip, PassportStamp, SplitText } from '../ui/AnimatedPrimitives';
 import { soundManager } from '../../utils/sound';
-import {
-  BarcodeStrip,
-  PassportStamp,
-  SplitText,
-  TiltSpotlightCard,
-} from '../ui/AnimatedPrimitives';
 
 interface Slide9WinnerProps {
   reducedMotion?: boolean;
-  onSelectSlide: (slide: number) => void;
+  onSelectSlide: (n: number) => void;
 }
 
 export const Slide9Winner: React.FC<Slide9WinnerProps> = ({
@@ -29,197 +18,115 @@ export const Slide9Winner: React.FC<Slide9WinnerProps> = ({
   useEffect(() => {
     soundManager.playWinnerChord();
     if (reducedMotion) return;
-
     const timer = window.setTimeout(() => {
       try {
         confetti({
-          particleCount: 75,
+          particleCount: 70,
           spread: 70,
-          origin: { x: 0.42, y: 0.45 },
-          colors: ['#C9472B', '#E0A526', '#3F5B3A', '#1B1B18'],
-          disableForReducedMotion: true,
+          origin: { x: 0.5, y: 0.45 },
+          colors: ['#C9472B', '#E0A526', '#3F5B3A', '#FAF6EE'],
         });
       } catch {
-        // Ignore in headless environments
+        // Ignore if canvas unavailable
       }
-    }, 350);
-
-    return () => clearTimeout(timer);
+    }, 320);
+    return () => window.clearTimeout(timer);
   }, [reducedMotion]);
 
-  const triggerExtraConfetti = () => {
-    if (reducedMotion) return;
-    try {
-      confetti({
-        particleCount: 55,
-        spread: 85,
-        origin: { x: 0.42, y: 0.5 },
-        colors: ['#C9472B', '#E0A526', '#3F5B3A', '#1B1B18'],
-      });
-    } catch {
-      // Ignore
-    }
-  };
-
   return (
-    <div className="relative flex h-full w-full flex-col justify-between gap-3.5 py-1">
-      {/* Header */}
-      <div className="relative z-10 space-y-1.5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-2 border-2 border-ink bg-tomato px-3.5 py-1 font-mono text-xs font-extrabold uppercase tracking-wider text-paper shadow-ink-sm">
-              <Crown className="h-3.5 w-3.5" />
-              <span>{SLIDE_9_WINNER.badge}</span>
-            </span>
+    <div className="relative flex h-full w-full flex-col justify-between py-2 text-paper-cream">
+      {/* Soft Editorial Spotlight Circle in Background */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-dashed border-mustard/25 bg-mustard/5"
+      />
 
-            <span className="hidden md:inline-flex items-center gap-1.5 border border-ink bg-cream px-2.5 py-1 font-mono text-[11px] font-bold text-ink">
-              <Terminal className="h-3.5 w-3.5 text-tomato" />
-              <span>$ {SLIDE_9_WINNER.terminalCmd}</span>
-            </span>
-          </div>
-
-          <PassportStamp text={SLIDE_9_WINNER.stampText} variant="olive" rotate={-3} />
-        </div>
-
-        <h1 className="misregister-title font-serif text-4xl sm:text-5xl xl:text-[58px] font-black leading-[0.96] tracking-tight text-ink">
+      {/* Top Header */}
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-2 border-b-2 border-paper-cream/30 pb-2.5">
+        <div className="flex items-center gap-3">
+          <span className="border-2 border-paper-cream bg-tomato px-3 py-1 font-mono text-xs font-extrabold uppercase tracking-widest text-paper-cream">
+            {SLIDE_9_WINNER.badge}
+          </span>
           <SplitText
             text={SLIDE_9_WINNER.title}
-            delay={0.05}
+            as="h1"
             reducedMotion={reducedMotion}
+            className="font-display text-2xl font-black tracking-tight text-paper-cream sm:text-4xl"
           />
-        </h1>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => onSelectSlide(5)}
+          className="border-2 border-paper-cream bg-mustard px-3 py-1 font-mono text-xs font-extrabold uppercase text-ink transition-transform hover:-translate-y-0.5"
+        >
+          View Siena Slide (05)
+        </button>
       </div>
 
-      {/* Main Content: Winner Boarding Pass (7 cols) + 4 Dimmed Contender Stubs (5 cols) */}
-      <div className="relative z-10 grid flex-1 grid-cols-1 lg:grid-cols-12 gap-5 items-center min-h-0">
-        {/* Left 7 Cols: Winner Boarding Pass (University of Siena) */}
-        <motion.div
-          initial={reducedMotion ? false : { opacity: 0, scale: 0.92, rotate: -1.5 }}
-          animate={{ opacity: 1, scale: 1.01, rotate: 0 }}
-          transition={{ type: 'spring', stiffness: 320, damping: 22, delay: 0.12 }}
-          className="lg:col-span-7"
-        >
-          <TiltSpotlightCard
-            theme="light"
-            highlight
-            showTape
-            codeTitle="// WINNER_BOARDING_PASS: RIX_TO_FLR_SIENA.PASS"
-            reducedMotion={reducedMotion}
-          >
-            <div className="p-5">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-dashed border-ink pb-3.5 mb-4">
-                <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={triggerExtraConfetti}
-                    title="Click for confetti burst"
-                    className="h-12 w-12 border-2 border-ink bg-mustard flex items-center justify-center shadow-ink-sm hover:bg-tomato hover:text-paper transition-colors"
-                  >
-                    <Sparkles className="h-6 w-6" />
-                  </button>
-                  <div>
-                    <span className="inline-flex items-center gap-1.5 border border-ink bg-olive px-2 py-0.5 font-mono text-[11px] font-extrabold uppercase tracking-wider text-paper">
-                      WINNER: {SLIDE_9_WINNER.winnerShort}
-                    </span>
-                    <h2 className="mt-1 font-serif text-2xl sm:text-4xl font-black text-ink">
-                      {SLIDE_9_WINNER.winnerUniversity}
-                    </h2>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <div className="font-mono text-[10px] font-bold uppercase text-ink/70">
-                    Monthly Living Cost
-                  </div>
-                  <div className="font-mono text-lg sm:text-xl font-extrabold text-tomato">
-                    {SLIDE_9_WINNER.winnerCost}
-                  </div>
-                  <div className="font-sans text-xs font-bold text-olive max-w-[290px]">
-                    {SLIDE_9_WINNER.winnerProgram}
-                  </div>
-                </div>
-              </div>
-
-              {/* Three Reasons */}
-              <div className="space-y-2.5">
-                {SLIDE_9_WINNER.reasons.map((reason, idx) => (
-                  <motion.div
-                    key={reason.title}
-                    initial={reducedMotion ? false : { opacity: 0, x: -18 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.38, delay: 0.22 + idx * 0.1 }}
-                    className="flex items-start gap-3 border-2 border-ink bg-paper p-3 shadow-ink-sm"
-                  >
-                    <CheckCircle2 className="h-5 w-5 shrink-0 text-olive mt-0.5" />
-                    <div>
-                      <h3 className="font-serif text-base xl:text-lg font-black text-ink">
-                        {reason.title}
-                      </h3>
-                      <p className="font-sans text-xs xl:text-sm font-semibold text-ink/85 leading-snug">
-                        {reason.detail}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              <div className="mt-3 flex items-center justify-between border-t border-dashed border-ink/30 pt-2">
-                <BarcodeStrip code="WINNER-UNISI-LM32-AI-100EN" />
-                <PassportStamp text="SCORE: 9.7 / 10" variant="tomato" rotate={2} />
-              </div>
+      {/* Main Winner Statement Banner with Stamp "MY CHOICE" */}
+      <motion.div
+        initial={reducedMotion ? false : { scale: 0.94, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+        className="relative z-10 my-2 flex flex-wrap items-center justify-between gap-4 border-2 border-paper-cream bg-paper-cream p-5 text-ink shadow-[6px_6px_0px_#C9472B]"
+      >
+        <div className="flex items-center gap-4">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center border-2 border-ink bg-mustard">
+            <Award className="h-8 w-8 text-ink" />
+          </div>
+          <div>
+            <div className="font-mono text-xs font-extrabold uppercase tracking-widest text-tomato">
+              WINNER AMONG THE 3 UNIVERSITIES
             </div>
-          </TiltSpotlightCard>
-        </motion.div>
-
-        {/* Right 5 Cols: Other 4 Boarding Stubs Dimmed + Runner-Up Notes */}
-        <div className="lg:col-span-5 flex flex-col justify-between space-y-3">
-          <div className="font-mono text-xs font-extrabold uppercase tracking-wider text-ink/80">
-            // Other 4 boarding passes compared:
+            <h2 className="font-display text-2xl font-black leading-tight text-ink sm:text-4xl">
+              “{SLIDE_9_WINNER.statement}”
+            </h2>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {PROGRAM_SLIDES.filter((p) => p.id !== 'siena').map((prog, idx) => (
-              <motion.button
-                key={prog.id}
-                type="button"
-                onClick={() => onSelectSlide(prog.slideNumber)}
-                initial={reducedMotion ? false : { opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 0.65, scale: 0.98 }}
-                whileHover={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.35, delay: 0.2 + idx * 0.07 }}
-                className="border-2 border-ink bg-cream p-3 text-left shadow-ink-sm transition-all"
-              >
-                <div className="flex items-center justify-between font-mono text-[10px] font-bold text-ink/75">
-                  <span>0{prog.programNumber}. {prog.city} ({prog.boardingPass.toIata.split(' ')[0]})</span>
-                  <span className="bg-mustard px-1.5 py-0.2 font-extrabold text-ink">
-                    {prog.overallRating}
-                  </span>
-                </div>
-                <div className="mt-1 font-serif text-base font-black text-ink truncate">
-                  {prog.university}
-                </div>
-                <div className="mt-0.5 font-mono text-xs text-tomato font-extrabold">
-                  {prog.livingCost}
-                </div>
-                <div className="mt-0.5 font-sans text-[11px] font-semibold text-ink/75 truncate">
-                  {prog.itRelevance}
-                </div>
-              </motion.button>
-            ))}
-          </div>
-
-          <motion.div
-            initial={reducedMotion ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.5 }}
-            className="border-2 border-ink bg-mustard p-3.5 flex items-start gap-2.5 shadow-ink-sm"
-          >
-            <TrendingUp className="h-5 w-5 shrink-0 text-tomato mt-0.5" />
-            <p className="font-sans text-xs xl:text-sm font-bold text-ink leading-snug">
-              {SLIDE_9_WINNER.runnerUpNote}
-            </p>
-          </motion.div>
         </div>
+
+        <PassportStamp
+          text={SLIDE_9_WINNER.stampText}
+          variant="tomato"
+          rotate={-6}
+          className="text-base px-4 py-1.5"
+        />
+      </motion.div>
+
+      {/* 3 Clear Verified Reasons */}
+      <div className="relative z-10 my-auto grid grid-cols-1 gap-4 md:grid-cols-3">
+        {SLIDE_9_WINNER.reasons.map((reason, idx) => (
+          <motion.div
+            key={reason.num}
+            initial={reducedMotion ? false : { opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.15 + idx * 0.12 }}
+            className="flex flex-col justify-between border-2 border-paper-cream bg-ink p-4 shadow-[4px_4px_0px_#E0A526]"
+          >
+            <div>
+              <div className="flex items-center justify-between border-b border-dashed border-paper-cream/30 pb-2">
+                <span className="font-display text-2xl font-black text-mustard">
+                  REASON {reason.num}
+                </span>
+                <CheckCircle2 className="h-5 w-5 text-mustard" />
+              </div>
+              <h3 className="mt-2.5 font-display text-lg font-black text-paper-cream sm:text-xl">
+                {reason.title}
+              </h3>
+              <p className="mt-2 font-sans text-sm font-medium leading-relaxed text-paper-cream/90">
+                {reason.detail}
+              </p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Honest Note About What the Other Two Do Better */}
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-t-2 border-paper-cream/30 pt-2.5">
+        <p className="font-mono text-xs font-bold text-mustard">
+          ★ FAIR NOTE: {SLIDE_9_WINNER.runnerUpNote}
+        </p>
+        <BarcodeStrip code="SIENA-MY-CHOICE-01" className="bg-paper-cream px-2 py-0.5" />
       </div>
     </div>
   );
